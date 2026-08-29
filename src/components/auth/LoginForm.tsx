@@ -7,6 +7,15 @@ interface LoginFormProps {
   onSuccess?: () => void;
 }
 
+function IconEye() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+}
+
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -41,22 +50,41 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       router.refresh();
       onSuccess?.();
     } catch {
-      setError("Error de conexin");
+      setError("Error de conexión");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded text-sm">
+        <div
+          style={{
+            backgroundColor: "#FEF2F2",
+            border: "1px solid #FECACA",
+            color: "#991B1B",
+            padding: "0.75rem 0.875rem",
+            borderRadius: "8px",
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.875rem",
+          }}
+        >
           {error}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          style={{
+            display: "block",
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.8125rem",
+            fontWeight: 600,
+            color: "var(--color-toast)",
+            marginBottom: "0.375rem",
+          }}
+        >
           Email
         </label>
         <input
@@ -64,29 +92,50 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+          placeholder="tu@email.com"
+          className="input-craft"
+          style={{ paddingLeft: "0.875rem" }}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Contrasea
+        <label
+          style={{
+            display: "block",
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.8125rem",
+            fontWeight: 600,
+            color: "var(--color-toast)",
+            marginBottom: "0.375rem",
+          }}
+        >
+          Contraseña
         </label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+          placeholder="Tu contraseña"
+          className="input-craft"
+          style={{ paddingLeft: "0.875rem" }}
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-gray-400 text-white py-2 rounded-md transition-colors font-medium"
+        className="btn-craft-primary"
+        style={{ marginTop: "0.25rem", width: "100%", justifyContent: "center" }}
       >
-        {loading ? "Ingresando..." : "Iniciar Sesión"}
+        {loading ? (
+          <>
+            <div className="spinner-craft" style={{ width: "16px", height: "16px" }} />
+            Ingresando...
+          </>
+        ) : (
+          "Iniciar Sesión"
+        )}
       </button>
     </form>
   );

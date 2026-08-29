@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import type { Beer } from "@/types";
 
+function IconCreditCard() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+      <line x1="1" y1="10" x2="23" y2="10"/>
+    </svg>
+  );
+}
+
 export default function NewOrderPage() {
   const [beers, setBeers] = useState<Beer[]>([]);
   const [selectedBeer, setSelectedBeer] = useState<string>("");
@@ -57,82 +66,221 @@ export default function NewOrderPage() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-700 mx-auto"></div>
+      <div
+        style={{
+          minHeight: "calc(100vh - 4rem)",
+          backgroundColor: "var(--color-cream)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div className="spinner-craft" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Nuevo Pedido</h1>
-
-      {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-md mb-6">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Selecciona tu cerveza
-          </label>
-          <select
-            value={selectedBeer}
-            onChange={(e) => setSelectedBeer(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+    <div
+      style={{
+        minHeight: "calc(100vh - 4rem)",
+        backgroundColor: "var(--color-cream)",
+        padding: "3rem 0",
+      }}
+    >
+      <div style={{ maxWidth: "32rem", margin: "0 auto", padding: "0 1.5rem" }}>
+        <div style={{ marginBottom: "2rem" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "var(--color-copper)",
+              marginBottom: "0.5rem",
+            }}
           >
-            <option value="">-- Elegir cerveza --</option>
-            {beers
-              .filter((b) => b.isActive && Number(b.stockInLiters) > 0)
-              .map((beer) => (
-                <option key={beer.id} value={beer.id}>
-                  {beer.name} - ${Number(beer.pricePerLiter).toFixed(2)}/L (
-                  {beer.stockInLiters}L disponible)
-                </option>
-              ))}
-          </select>
+            Nuevo pedido
+          </p>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
+              fontWeight: 700,
+              color: "var(--color-toast)",
+              letterSpacing: "-0.025em",
+            }}
+          >
+            Hacer un pedido
+          </h1>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cantidad de litros
-          </label>
-          <input
-            type="number"
-            step="0.5"
-            min="0.5"
-            max={selected ? Number(selected.stockInLiters) : 100}
-            value={quantity}
-            onChange={(e) => setQuantity(parseFloat(e.target.value) || 0.5)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-          />
-        </div>
-
-        {selected && (
-          <div className="bg-amber-50 p-4 rounded-md">
-            <div className="flex justify-between text-sm">
-              <span>
-                {quantity}L x ${Number(selected.pricePerLiter).toFixed(2)}/L
-              </span>
-              <span>${total.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-amber-200">
-              <span>Total</span>
-              <span className="text-amber-700">${total.toFixed(2)}</span>
-            </div>
+        {error && (
+          <div
+            style={{
+              backgroundColor: "#FEF2F2",
+              border: "1px solid #FECACA",
+              color: "#991B1B",
+              padding: "0.875rem 1rem",
+              borderRadius: "8px",
+              marginBottom: "1.25rem",
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.875rem",
+            }}
+          >
+            {error}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={!selectedBeer || submitting}
-          className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-gray-400 text-white py-3 rounded-md transition-colors font-bold text-lg"
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            background: "white",
+            borderRadius: "16px",
+            padding: "1.75rem",
+            boxShadow: "0 2px 12px rgba(26, 22, 18, 0.08)",
+            border: "1px solid rgba(196, 127, 23, 0.08)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.25rem",
+          }}
         >
-          {submitting ? "Procesando..." : "Ir a Pagar"}
-        </button>
-      </form>
+          {/* Beer select */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                color: "var(--color-toast)",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Seleccioná tu cerveza
+            </label>
+            <select
+              value={selectedBeer}
+              onChange={(e) => setSelectedBeer(e.target.value)}
+              className="input-craft"
+              style={{ paddingLeft: "0.875rem" }}
+            >
+              <option value="">— Elegir cerveza —</option>
+              {beers
+                .filter((b) => b.isActive && Number(b.stockInLiters) > 0)
+                .map((beer) => (
+                  <option key={beer.id} value={beer.id}>
+                    {beer.name} — ${Number(beer.pricePerLiter).toFixed(2)}/L ({beer.stockInLiters}L disponible)
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {/* Quantity */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                color: "var(--color-toast)",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Cantidad de litros
+            </label>
+            <input
+              type="number"
+              step="0.5"
+              min="0.5"
+              max={selected ? Number(selected.stockInLiters) : 100}
+              value={quantity}
+              onChange={(e) => setQuantity(parseFloat(e.target.value) || 0.5)}
+              className="input-craft"
+              style={{ paddingLeft: "0.875rem" }}
+            />
+          </div>
+
+          {/* Total */}
+          {selected && (
+            <div
+              style={{
+                backgroundColor: "var(--color-cream)",
+                padding: "1rem",
+                borderRadius: "10px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.875rem",
+                  color: "var(--color-toast-muted)",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                <span>
+                  {quantity}L × ${Number(selected.pricePerLiter).toFixed(2)}/L
+                </span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  paddingTop: "0.625rem",
+                  borderTop: "1px solid rgba(196, 127, 23, 0.15)",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "0.9375rem",
+                    fontWeight: 600,
+                    color: "var(--color-toast)",
+                  }}
+                >
+                  Total
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.5rem",
+                    fontWeight: 700,
+                    color: "var(--color-amber-deep)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  ${total.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={!selectedBeer || submitting}
+            className="btn-craft-primary"
+            style={{ justifyContent: "center", gap: "0.5rem", marginTop: "0.25rem" }}
+          >
+            {submitting ? (
+              <>
+                <div className="spinner-craft" style={{ width: "16px", height: "16px" }} />
+                Procesando...
+              </>
+            ) : (
+              <>
+                <IconCreditCard />
+                Ir a Pagar
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

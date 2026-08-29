@@ -33,87 +33,225 @@ export default function AdminUsersPage() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Usuarios</h1>
-          <p className="text-gray-500 mt-1">
-            Usuarios que han realizado pedidos
-          </p>
-        </div>
-        <a
-          href="/admin/orders"
-          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm"
+    <div style={{ minHeight: "calc(100vh - 4rem)", backgroundColor: "var(--color-cream)", padding: "3rem 0" }}>
+      <div style={{ maxWidth: "72rem", margin: "0 auto", padding: "0 1.5rem" }}>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            marginBottom: "2rem",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
         >
-          Pedidos
-        </a>
-      </div>
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "var(--color-copper)",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Panel de control
+            </p>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+                fontWeight: 700,
+                color: "var(--color-toast)",
+                letterSpacing: "-0.025em",
+              }}
+            >
+              Usuarios
+            </h1>
+          </div>
+          <a
+            href="/admin/orders"
+            style={{
+              backgroundColor: "white",
+              border: "1px solid rgba(26, 22, 18, 0.12)",
+              color: "var(--color-toast)",
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.8125rem",
+              fontWeight: 500,
+              padding: "0.5rem 0.875rem",
+              borderRadius: "8px",
+              textDecoration: "none",
+              transition: "all 0.2s",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.375rem",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--color-cream-dark)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "white";
+            }}
+          >
+            Pedidos
+          </a>
+        </div>
 
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-700 mx-auto"></div>
-        </div>
-      ) : users.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-md">
-          <span className="text-5xl">👥</span>
-          <h2 className="text-xl font-bold text-gray-900 mt-4">
-            Sin usuarios an
-          </h2>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Nombre
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Rol
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Telfono
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Direccin
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">
-                    {user.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        user.role === "ADMIN"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+        {/* Loading */}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "4rem 0" }}>
+            <div className="spinner-craft" style={{ margin: "0 auto" }} />
+          </div>
+        ) : users.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "4rem 2rem",
+              background: "white",
+              borderRadius: "12px",
+              border: "1px solid rgba(196, 127, 23, 0.08)",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "3rem",
+                fontWeight: 900,
+                color: "rgba(196, 127, 23, 0.12)",
+              }}
+            >
+              —
+            </p>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.375rem",
+                fontWeight: 600,
+                color: "var(--color-toast)",
+                marginTop: "1rem",
+              }}
+            >
+              Sin usuarios aún
+            </h2>
+          </div>
+        ) : (
+          /* Table */
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              overflow: "hidden",
+              boxShadow: "0 1px 3px rgba(26, 22, 18, 0.06)",
+              border: "1px solid rgba(196, 127, 23, 0.06)",
+              overflowX: "auto",
+            }}
+          >
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ backgroundColor: "var(--color-cream-dark)" }}>
+                  {["Nombre", "Email", "Rol", "Teléfono", "Dirección"].map((h) => (
+                    <th
+                      key={h}
+                      style={{
+                        padding: "0.875rem 1.25rem",
+                        textAlign: "left",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "0.6875rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "var(--color-toast-muted)",
+                        whiteSpace: "nowrap",
+                      }}
                     >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.phone || "-"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.address || "-"}
-                  </td>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {users.map((user, i) => (
+                  <tr
+                    key={user.id}
+                    style={{
+                      borderTop: i > 0 ? "1px solid rgba(26, 22, 18, 0.05)" : undefined,
+                    }}
+                  >
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.9375rem",
+                          fontWeight: 600,
+                          color: "var(--color-toast)",
+                        }}
+                      >
+                        {user.name}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.875rem",
+                          color: "var(--color-toast-muted)",
+                        }}
+                      >
+                        {user.email}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          padding: "0.2rem 0.625rem",
+                          borderRadius: "9999px",
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.05em",
+                          backgroundColor:
+                            user.role === "ADMIN" ? "var(--color-toast)" : "var(--color-cream-dark)",
+                          color:
+                            user.role === "ADMIN" ? "var(--color-cream)" : "var(--color-toast-muted)",
+                        }}
+                      >
+                        {user.role}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.875rem",
+                          color: user.phone ? "var(--color-toast)" : "var(--color-toast-muted)",
+                        }}
+                      >
+                        {user.phone || "—"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.875rem",
+                          color: user.address ? "var(--color-toast)" : "var(--color-toast-muted)",
+                        }}
+                      >
+                        {user.address || "—"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
