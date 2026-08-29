@@ -1,12 +1,12 @@
 import type { OrderStatus } from "@/types";
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string }> = {
-  PENDING: { label: "Pendiente", color: "bg-yellow-100 text-yellow-800" },
-  PAID: { label: "Pagado", color: "bg-blue-100 text-blue-800" },
-  PREPARING: { label: "Preparando", color: "bg-orange-100 text-orange-800" },
-  READY: { label: "Listo", color: "bg-green-100 text-green-800" },
-  DELIVERED: { label: "Entregado", color: "bg-gray-100 text-gray-800" },
-  CANCELLED: { label: "Cancelado", color: "bg-red-100 text-red-800" },
+const STATUS_CONFIG: Record<OrderStatus, { label: string; bg: string; text: string; dot: string }> = {
+  PENDING:    { label: "Pendiente",   bg: "#FEF3C7", text: "#92400E", dot: "#F59E0B" },
+  PAID:       { label: "Pagado",       bg: "#DBEAFE", text: "#1E40AF", dot: "#3B82F6" },
+  PREPARING:  { label: "Preparando",   bg: "#FED7AA", text: "#9A3412", dot: "#F97316" },
+  READY:      { label: "Listo",        bg: "#D1FAE5", text: "#065F46", dot: "#10B981" },
+  DELIVERED:  { label: "Entregado",    bg: "#F3F4F6", text: "#374151", dot: "#6B7280" },
+  CANCELLED:  { label: "Cancelado",    bg: "#FEE2E2", text: "#991B1B", dot: "#EF4444" },
 };
 
 interface OrderStatusBadgeProps {
@@ -18,8 +18,29 @@ export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.375rem",
+        padding: "0.25rem 0.625rem",
+        borderRadius: "9999px",
+        backgroundColor: config.bg,
+        color: config.text,
+        fontFamily: "var(--font-sans)",
+        fontSize: "0.75rem",
+        fontWeight: 600,
+        letterSpacing: "0.01em",
+      }}
     >
+      <span
+        style={{
+          width: "6px",
+          height: "6px",
+          borderRadius: "50%",
+          backgroundColor: config.dot,
+          flexShrink: 0,
+        }}
+      />
       {config.label}
     </span>
   );

@@ -13,6 +13,14 @@ const STATUS_OPTIONS = [
   "CANCELLED",
 ] as const;
 
+function IconPlus() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+  );
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,114 +65,288 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Gestionar Pedidos
-          </h1>
-          <p className="text-gray-500 mt-1">Administra los pedidos recibidos</p>
+    <div style={{ minHeight: "calc(100vh - 4rem)", backgroundColor: "var(--color-cream)", padding: "3rem 0" }}>
+      <div style={{ maxWidth: "72rem", margin: "0 auto", padding: "0 1.5rem" }}>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            marginBottom: "2rem",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
+        >
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.6875rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "var(--color-copper)",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Panel de control
+            </p>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+                fontWeight: 700,
+                color: "var(--color-toast)",
+                letterSpacing: "-0.025em",
+              }}
+            >
+              Gestionar Pedidos
+            </h1>
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <a
+              href="/admin/beers"
+              style={{
+                backgroundColor: "white",
+                border: "1px solid rgba(26, 22, 18, 0.12)",
+                color: "var(--color-toast)",
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                padding: "0.5rem 0.875rem",
+                borderRadius: "8px",
+                textDecoration: "none",
+                transition: "all 0.2s",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.375rem",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--color-cream-dark)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "white";
+              }}
+            >
+              Cervezas
+            </a>
+            <a
+              href="/admin/users"
+              style={{
+                backgroundColor: "white",
+                border: "1px solid rgba(26, 22, 18, 0.12)",
+                color: "var(--color-toast)",
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                padding: "0.5rem 0.875rem",
+                borderRadius: "8px",
+                textDecoration: "none",
+                transition: "all 0.2s",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.375rem",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--color-cream-dark)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "white";
+              }}
+            >
+              Usuarios
+            </a>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <a
-            href="/admin/beers"
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm"
-          >
-            Cervezas
-          </a>
-          <a
-            href="/admin/users"
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm"
-          >
-            Usuarios
-          </a>
-        </div>
-      </div>
 
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-700 mx-auto"></div>
-        </div>
-      ) : orders.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-md">
-          <span className="text-5xl">📋</span>
-          <h2 className="text-xl font-bold text-gray-900 mt-4">
-            Sin pedidos an
-          </h2>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Pedido
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Cliente
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Items
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Total
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Estado
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Accin
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4">
-                    <span className="font-mono text-sm">
-                      #{order.id.slice(-8)}
-                    </span>
-                    <p className="text-xs text-gray-400">
-                      {new Date(order.createdAt).toLocaleDateString("es-ES")}
-                    </p>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700">
-                    {order.user?.name || "N/A"}
-                    <p className="text-xs text-gray-400">{order.user?.email}</p>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-700">
-                    {order.items?.map((item) => (
-                      <div key={item.id}>
-                        {item.beer?.name} - {item.quantity}L
-                      </div>
-                    ))}
-                  </td>
-                  <td className="px-4 py-4 font-medium text-amber-700">
-                    ${Number(order.totalAmount).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-4">
-                    <OrderStatusBadge status={order.status} />
-                  </td>
-                  <td className="px-4 py-4">
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateStatus(order.id, e.target.value)}
-                      disabled={updating === order.id}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-amber-500"
+        {/* Loading */}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "4rem 0" }}>
+            <div className="spinner-craft" style={{ margin: "0 auto" }} />
+          </div>
+        ) : orders.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "4rem 2rem",
+              background: "white",
+              borderRadius: "12px",
+              border: "1px solid rgba(196, 127, 23, 0.08)",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "3rem",
+                fontWeight: 900,
+                color: "rgba(196, 127, 23, 0.12)",
+              }}
+            >
+              —
+            </p>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.375rem",
+                fontWeight: 600,
+                color: "var(--color-toast)",
+                marginTop: "1rem",
+              }}
+            >
+              Sin pedidos aún
+            </h2>
+          </div>
+        ) : (
+          /* Table */
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              overflow: "hidden",
+              boxShadow: "0 1px 3px rgba(26, 22, 18, 0.06)",
+              border: "1px solid rgba(196, 127, 23, 0.06)",
+              overflowX: "auto",
+            }}
+          >
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ backgroundColor: "var(--color-cream-dark)" }}>
+                  {["Pedido", "Cliente", "Items", "Total", "Estado", "Acción"].map((h) => (
+                    <th
+                      key={h}
+                      style={{
+                        padding: "0.875rem 1.25rem",
+                        textAlign: "left",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "0.6875rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "var(--color-toast-muted)",
+                        whiteSpace: "nowrap",
+                      }}
                     >
-                      {STATUS_OPTIONS.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {orders.map((order, i) => (
+                  <tr
+                    key={order.id}
+                    style={{
+                      borderTop: i > 0 ? "1px solid rgba(26, 22, 18, 0.05)" : undefined,
+                    }}
+                  >
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.8125rem",
+                          fontWeight: 600,
+                          color: "var(--color-toast)",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        #{order.id.slice(-8).toUpperCase()}
+                      </span>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.75rem",
+                          color: "var(--color-toast-muted)",
+                          marginTop: "0.125rem",
+                        }}
+                      >
+                        {new Date(order.createdAt).toLocaleDateString("es-ES")}
+                      </p>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          color: "var(--color-toast)",
+                        }}
+                      >
+                        {order.user?.name || "N/A"}
+                      </span>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.75rem",
+                          color: "var(--color-toast-muted)",
+                        }}
+                      >
+                        {order.user?.email}
+                      </p>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                        {order.items?.map((item) => (
+                          <span
+                            key={item.id}
+                            style={{
+                              fontFamily: "var(--font-sans)",
+                              fontSize: "0.8125rem",
+                              color: "var(--color-toast-muted)",
+                            }}
+                          >
+                            {item.beer?.name} · {item.quantity}L
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          fontSize: "1rem",
+                          fontWeight: 700,
+                          color: "var(--color-amber-deep)",
+                        }}
+                      >
+                        ${Number(order.totalAmount).toFixed(2)}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+                    <td style={{ padding: "1rem 1.25rem" }}>
+                      <select
+                        value={order.status}
+                        onChange={(e) => updateStatus(order.id, e.target.value)}
+                        disabled={updating === order.id}
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.8125rem",
+                          padding: "0.375rem 0.625rem",
+                          borderRadius: "6px",
+                          border: "1.5px solid rgba(26, 22, 18, 0.12)",
+                          backgroundColor: "white",
+                          color: "var(--color-toast)",
+                          cursor: updating === order.id ? "not-allowed" : "pointer",
+                          opacity: updating === order.id ? 0.6 : 1,
+                          transition: "opacity 0.2s",
+                        }}
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

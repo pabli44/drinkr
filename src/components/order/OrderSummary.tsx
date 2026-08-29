@@ -2,6 +2,14 @@ import type { Order } from "@/types";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import Link from "next/link";
 
+function IconArrowRight() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  );
+}
+
 interface OrderSummaryProps {
   order: Order;
   showLink?: boolean;
@@ -9,38 +17,103 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ order, showLink = true }: OrderSummaryProps) {
   const total = Number(order.totalAmount);
+  const date = new Date(order.createdAt);
+
+  const formattedDate = date.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const formattedTime = date.toLocaleTimeString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-      <div className="flex justify-between items-start mb-3">
+    <div
+      style={{
+        background: "white",
+        borderRadius: "12px",
+        padding: "1.25rem 1.5rem",
+        boxShadow: "0 1px 3px rgba(26, 22, 18, 0.06), 0 2px 8px rgba(26, 22, 18, 0.04)",
+        border: "1px solid rgba(196, 127, 23, 0.06)",
+        transition: "box-shadow 0.2s ease",
+      }}
+    >
+      {/* Header row */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: order.items?.length ? "1rem" : 0,
+        }}
+      >
         <div>
-          <p className="text-sm text-gray-500">
-            Pedido #{order.id.slice(-8)}
+          <p
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              letterSpacing: "0.05em",
+              color: "var(--color-toast-muted)",
+              textTransform: "uppercase",
+            }}
+          >
+            Pedido #{order.id.slice(-8).toUpperCase()}
           </p>
-          <p className="text-xs text-gray-400">
-            {new Date(order.createdAt).toLocaleDateString("es-ES", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+          <p
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.8125rem",
+              color: "var(--color-toast-muted)",
+              marginTop: "0.125rem",
+            }}
+          >
+            {formattedDate} · {formattedTime}
           </p>
         </div>
         <OrderStatusBadge status={order.status} />
       </div>
 
+      {/* Items */}
       {order.items && order.items.length > 0 && (
-        <div className="border-t pt-3 mt-3">
+        <div
+          style={{
+            borderTop: "1px solid rgba(26, 22, 18, 0.06)",
+            paddingTop: "0.875rem",
+            marginTop: "0.875rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
           {order.items.map((item) => (
             <div
               key={item.id}
-              className="flex justify-between text-sm py-1"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+              }}
             >
-              <span className="text-gray-700">
-                {item.beer?.name || "Cerveza"} - {item.quantity}L
+              <span
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.9375rem",
+                  color: "var(--color-toast)",
+                  fontWeight: 500,
+                }}
+              >
+                {item.beer?.name || "Cerveza"} · {item.quantity}L
               </span>
-              <span className="text-gray-500">
+              <span
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.9375rem",
+                  color: "var(--color-toast-muted)",
+                }}
+              >
                 ${(Number(item.unitPrice) * Number(item.quantity)).toFixed(2)}
               </span>
             </div>
@@ -48,19 +121,65 @@ export function OrderSummary({ order, showLink = true }: OrderSummaryProps) {
         </div>
       )}
 
-      <div className="border-t mt-3 pt-3 flex justify-between items-center">
-        <span className="font-bold text-lg">Total</span>
-        <span className="font-bold text-amber-700 text-lg">
+      {/* Total */}
+      <div
+        style={{
+          borderTop: "1px solid rgba(26, 22, 18, 0.06)",
+          paddingTop: "0.875rem",
+          marginTop: "0.875rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            color: "var(--color-toast)",
+          }}
+        >
+          Total
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "1.25rem",
+            fontWeight: 700,
+            color: "var(--color-amber-deep)",
+            letterSpacing: "-0.02em",
+          }}
+        >
           ${total.toFixed(2)}
         </span>
       </div>
 
+      {/* Link */}
       {showLink && (
         <Link
           href={`/order/${order.id}`}
-          className="mt-3 block text-center text-amber-700 hover:text-amber-600 text-sm font-medium"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.375rem",
+            marginTop: "1rem",
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.8125rem",
+            fontWeight: 600,
+            color: "var(--color-amber-deep)",
+            textDecoration: "none",
+            transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--color-amber-dark)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--color-amber-deep)";
+          }}
         >
           Ver detalles
+          <IconArrowRight />
         </Link>
       )}
     </div>
