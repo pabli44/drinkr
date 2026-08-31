@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product, Category } from "@/types";
 import { ProductCard } from "@/components/product/ProductCard";
+import { MOCK_CATEGORIES, MOCK_PRODUCTS } from "@/lib/mock-data";
 
 function IconWhatsApp() {
   return (
@@ -43,110 +44,40 @@ function buildWhatsAppMessage(cart: Map<string, { product: Product; quantity: nu
   return `https://wa.me/${adminPhone.replace(/\D/g, "")}?text=${text}`;
 }
 
-// ─── Mock data for demo (until DB schema is migrated) ───────────────────────
-const MOCK_CATEGORIES: Category[] = [
-  { id: "cerveza", name: "Cerveza", icon: "🍺", order: 0, isActive: true },
-  { id: "gaseosa", name: "Gaseosa", icon: "🥤", order: 1, isActive: true },
-];
-
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Poker Six-Pack 330ml",
-    description: "Cerveza colombiana, rubia, suave",
-    categoryId: "cerveza",
-    presentation: "SIXPACK",
-    regularPrice: 22000,
-    promoPrice: 17500,
-    stock: 8,
-    imageUrl: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    name: "Corona Six-Pack 355ml",
-    description: "Cerveza mexicana, clara, premium",
-    categoryId: "cerveza",
-    presentation: "SIXPACK",
-    regularPrice: 32000,
-    promoPrice: 25900,
-    stock: 5,
-    imageUrl: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "3",
-    name: "BBC Stout 330ml",
-    description: "Cerveza negra artesanal",
-    categoryId: "cerveza",
-    presentation: "BOTTLE",
-    regularPrice: 8500,
-    promoPrice: 6200,
-    stock: 12,
-    imageUrl: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "4",
-    name: "Club Colombia Six-Pack",
-    description: "Cerveza premium colombiana",
-    categoryId: "cerveza",
-    presentation: "SIXPACK",
-    regularPrice: 28000,
-    promoPrice: 22500,
-    stock: 3,
-    imageUrl: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "5",
-    name: "Coca-Cola Six-Pack 355ml",
-    description: "Gaseosa clásica",
-    categoryId: "gaseosa",
-    presentation: "SIXPACK",
-    regularPrice: 18000,
-    promoPrice: 14200,
-    stock: 15,
-    imageUrl: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "6",
-    name: "Pepsi 1.5L",
-    description: "Gaseosa grande",
-    categoryId: "gaseosa",
-    presentation: "BOTTLE",
-    regularPrice: 7500,
-    promoPrice: 5500,
-    stock: 20,
-    imageUrl: null,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
 // ─── Component ────────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = "drinkr_products";
+
+function loadProducts(): Product[] {
+  if (typeof window === "undefined") return MOCK_PRODUCTS;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  return MOCK_PRODUCTS;
+}
 
 function MenuContent() {
   const searchParams = useSearchParams();
   const [categories] = useState<Category[]>(MOCK_CATEGORIES);
-  const [products] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(() => loadProducts());
+
+  // Reload products when admin updates stock (via localStorage)
+  useEffect(() => {
+    const handler = () => setProducts(loadProducts());
+    window.addEventListener("storage", handler);
+    // Also poll every 2s to catch same-tab admin updates
+    const interval = setInterval(handler, 2000);
+    return () => {
+      window.removeEventListener("storage", handler);
+      clearInterval(interval);
+    };
+  }, []);
   const [activeCategory, setActiveCategory] = useState<string | null>(
     searchParams.get("cat") ?? MOCK_CATEGORIES[0].id
   );
   const [cart, setCart] = useState<Map<string, { product: Product; quantity: number }>>(new Map());
-  const [adminPhone] = useState("573001234567"); // TODO: from config/env
+  const adminPhone = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP ?? "573001234567";
 
   const filteredProducts = products.filter(
     (p) => p.isActive && p.categoryId === activeCategory
