@@ -1,9 +1,11 @@
-import { RegisterForm } from "@/components/auth/RegisterForm";
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 function IconBeer() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 11h1a3 3 0 0 1 0 6h-1"/>
       <path d="M9 12v6"/>
       <path d="M13 12v6"/>
@@ -13,11 +15,42 @@ function IconBeer() {
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+        return;
+      }
+      router.push("/admin/products");
+      router.refresh();
+    } catch {
+      setError("Error de conexión");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div
       style={{
         minHeight: "calc(100vh - 4rem)",
-        backgroundColor: "var(--color-cream)",
+        backgroundColor: "var(--color-base)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -25,83 +58,168 @@ export default function RegisterPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: "26rem" }}>
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          {/* Icon */}
           <div
             style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "14px",
-              backgroundColor: "var(--color-toast)",
+              width: "52px",
+              height: "52px",
+              borderRadius: "12px",
+              backgroundColor: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 1.25rem",
-              color: "var(--color-amber-light)",
+              color: "var(--color-neon-green)",
             }}
           >
             <IconBeer />
           </div>
-
           <h1
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "1.875rem",
-              fontWeight: 700,
-              color: "var(--color-toast)",
+              fontWeight: 800,
+              color: "var(--color-text)",
               letterSpacing: "-0.025em",
               marginBottom: "0.375rem",
             }}
           >
-            Crear Cuenta
+            drinkr
+            <span style={{ color: "var(--color-neon-green)" }}>.</span>
           </h1>
-          <p
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: "0.9375rem",
-              color: "var(--color-toast-muted)",
-            }}
-          >
-            Hacé tu primer pedido en segundos
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.9375rem", color: "var(--color-text-muted)" }}>
+            Crear cuenta de administrador
           </p>
         </div>
 
-        {/* Card */}
         <div
           style={{
-            background: "white",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
             borderRadius: "16px",
             padding: "2rem",
-            boxShadow: "0 2px 12px rgba(26, 22, 18, 0.08), 0 1px 3px rgba(26, 22, 18, 0.04)",
-            border: "1px solid rgba(196, 127, 23, 0.08)",
           }}
         >
-          <RegisterForm />
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+          >
+            {error && (
+              <div
+                style={{
+                  backgroundColor: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.25)",
+                  color: "#F87171",
+                  padding: "0.75rem 0.875rem",
+                  borderRadius: "8px",
+                  fontSize: "0.875rem",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  color: "var(--color-text)",
+                  marginBottom: "0.375rem",
+                }}
+              >
+                Nombre *
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Tu nombre"
+                className="input-dark"
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  color: "var(--color-text)",
+                  marginBottom: "0.375rem",
+                }}
+              >
+                Email *
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="tu@email.com"
+                className="input-dark"
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  color: "var(--color-text)",
+                  marginBottom: "0.375rem",
+                }}
+              >
+                Contraseña *
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="Mínimo 6 caracteres"
+                className="input-dark"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-neon-green"
+              style={{ marginTop: "0.25rem", width: "100%", justifyContent: "center" }}
+            >
+              {loading ? (
+                <>
+                  <div className="spinner-neon" />
+                  Creando cuenta...
+                </>
+              ) : (
+                "Crear Cuenta"
+              )}
+            </button>
+          </form>
         </div>
 
-        {/* Footer */}
         <p
           style={{
             fontFamily: "var(--font-sans)",
             fontSize: "0.875rem",
-            color: "var(--color-toast-muted)",
+            color: "var(--color-text-dim)",
             textAlign: "center",
             marginTop: "1.5rem",
           }}
         >
-          ¿Ya tenés cuenta?{" "}
-          <Link
-            href="/login"
-            style={{
-              color: "var(--color-amber-deep)",
-              fontWeight: 600,
-              textDecoration: "none",
-              textUnderlineOffset: "3px",
-            }}
-          >
-            Inicia sesión
-          </Link>
+          <a href="/menu" style={{ color: "var(--color-neon-green)", textDecoration: "none", fontWeight: 600 }}>
+            Ver catálogo →
+          </a>
         </p>
       </div>
     </div>

@@ -49,8 +49,8 @@ export function Navbar() {
   return (
     <nav
       style={{
-        backgroundColor: "var(--color-toast)",
-        borderBottom: "1px solid rgba(196, 127, 23, 0.2)",
+        backgroundColor: "var(--color-base)",
+        borderBottom: "1px solid var(--color-border)",
         position: "sticky",
         top: 0,
         zIndex: 50,
@@ -72,8 +72,8 @@ export function Navbar() {
           href="/"
           style={{
             display: "flex",
-            alignItems: "baseline",
-            gap: "0.75rem",
+            alignItems: "center",
+            gap: "0.5rem",
             textDecoration: "none",
           }}
         >
@@ -81,29 +81,28 @@ export function Navbar() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "1.375rem",
-              fontWeight: 700,
-              color: "var(--color-cream)",
-              letterSpacing: "-0.02em",
+              fontWeight: 900,
+              color: "var(--color-text)",
+              letterSpacing: "-0.03em",
             }}
           >
-            Beer Drop
+            drinkr
           </span>
           <span
             style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: "0.625rem",
+              fontFamily: "var(--font-display)",
+              fontSize: "0.875rem",
               fontWeight: 700,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              color: "var(--color-copper)",
+              color: "var(--color-neon-green)",
+              letterSpacing: "0.02em",
             }}
           >
-            Craft Beer
+            .
           </span>
         </Link>
 
         {/* Right side */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
           {!loading && (
             <>
               {user ? (
@@ -111,7 +110,7 @@ export function Navbar() {
                   <Link
                     href="/dashboard"
                     style={{
-                      color: "rgba(255, 248, 231, 0.7)",
+                      color: "var(--color-text-muted)",
                       fontSize: "0.8125rem",
                       fontWeight: 500,
                       textDecoration: "none",
@@ -120,11 +119,11 @@ export function Navbar() {
                       transition: "color 0.2s, background-color 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--color-cream)";
-                      e.currentTarget.style.backgroundColor = "rgba(255,248,231,0.08)";
+                      e.currentTarget.style.color = "var(--color-text)";
+                      e.currentTarget.style.backgroundColor = "var(--color-surface)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255, 248, 231, 0.7)";
+                      e.currentTarget.style.color = "var(--color-text-muted)";
                       e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
@@ -132,24 +131,24 @@ export function Navbar() {
                   </Link>
                   {user.role === "ADMIN" && (
                     <Link
-                      href="/admin/orders"
+                      href="/admin/products"
                       style={{
-                        color: "var(--color-copper)",
+                        color: "var(--color-neon-orange)",
                         fontSize: "0.8125rem",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         textDecoration: "none",
                         padding: "0.375rem 0.75rem",
                         borderRadius: "6px",
-                        border: "1px solid var(--color-copper)",
-                        transition: "background-color 0.2s, color 0.2s",
+                        border: "1px solid var(--color-neon-orange)",
+                        transition: "all 0.2s",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "var(--color-copper)";
-                        e.currentTarget.style.color = "var(--color-toast)";
+                        e.currentTarget.style.backgroundColor = "var(--color-neon-orange)";
+                        e.currentTarget.style.color = "var(--color-base)";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = "transparent";
-                        e.currentTarget.style.color = "var(--color-copper)";
+                        e.currentTarget.style.color = "var(--color-neon-orange)";
                       }}
                     >
                       Admin
@@ -159,8 +158,8 @@ export function Navbar() {
                     onClick={handleLogout}
                     style={{
                       backgroundColor: "transparent",
-                      color: "rgba(255, 248, 231, 0.55)",
-                      border: "1px solid rgba(255, 248, 231, 0.15)",
+                      color: "var(--color-text-dim)",
+                      border: "1px solid var(--color-border)",
                       fontSize: "0.8125rem",
                       fontWeight: 500,
                       padding: "0.375rem 0.875rem",
@@ -169,12 +168,12 @@ export function Navbar() {
                       transition: "all 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--color-cream)";
-                      e.currentTarget.style.borderColor = "rgba(255, 248, 231, 0.35)";
+                      e.currentTarget.style.color = "var(--color-text)";
+                      e.currentTarget.style.borderColor = "var(--color-border-bright)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255, 248, 231, 0.55)";
-                      e.currentTarget.style.borderColor = "rgba(255, 248, 231, 0.15)";
+                      e.currentTarget.style.color = "var(--color-text-dim)";
+                      e.currentTarget.style.borderColor = "var(--color-border)";
                     }}
                   >
                     Salir
@@ -185,49 +184,48 @@ export function Navbar() {
                   <Link
                     href="/login"
                     style={{
-                      color: "rgba(255, 248, 231, 0.7)",
+                      color: "var(--color-text-muted)",
                       fontSize: "0.8125rem",
                       fontWeight: 500,
                       textDecoration: "none",
                       padding: "0.375rem 0.75rem",
                       borderRadius: "6px",
-                      transition: "color 0.2s, background-color 0.2s",
+                      transition: "color 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "var(--color-cream)";
-                      e.currentTarget.style.backgroundColor = "rgba(255,248,231,0.08)";
+                      e.currentTarget.style.color = "var(--color-text)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255, 248, 231, 0.7)";
-                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = "var(--color-text-muted)";
                     }}
                   >
                     Iniciar Sesión
                   </Link>
                   <Link
-                    href="/register"
+                    href="/login"
                     style={{
-                      backgroundColor: "var(--color-amber-deep)",
-                      color: "white",
+                      backgroundColor: "var(--color-neon-green)",
+                      color: "var(--color-base)",
                       fontSize: "0.8125rem",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       textDecoration: "none",
                       padding: "0.4375rem 1rem",
                       borderRadius: "6px",
-                      transition: "background-color 0.2s, transform 0.15s",
+                      transition: "all 0.2s",
                       display: "inline-flex",
                       alignItems: "center",
+                      boxShadow: "0 0 12px rgba(0, 230, 118, 0.3)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--color-amber-dark)";
-                      e.currentTarget.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.backgroundColor = "var(--color-neon-green-dim)";
+                      e.currentTarget.style.boxShadow = "0 0 20px rgba(0, 230, 118, 0.5)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--color-amber-deep)";
-                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.backgroundColor = "var(--color-neon-green)";
+                      e.currentTarget.style.boxShadow = "0 0 12px rgba(0, 230, 118, 0.3)";
                     }}
                   >
-                    Registrarse
+                    Admin
                   </Link>
                 </>
               )}

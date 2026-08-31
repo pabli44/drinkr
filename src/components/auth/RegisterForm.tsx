@@ -12,8 +12,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,21 +19,17 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, phone, address }),
+        body: JSON.stringify({ name, email, password }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error);
         return;
       }
-
       router.push("/dashboard");
       router.refresh();
       onSuccess?.();
@@ -47,16 +41,18 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
+    >
       {error && (
         <div
           style={{
-            backgroundColor: "#FEF2F2",
-            border: "1px solid #FECACA",
-            color: "#991B1B",
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            color: "#F87171",
             padding: "0.75rem 0.875rem",
             borderRadius: "8px",
-            fontFamily: "var(--font-sans)",
             fontSize: "0.875rem",
           }}
         >
@@ -71,7 +67,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             fontFamily: "var(--font-sans)",
             fontSize: "0.8125rem",
             fontWeight: 600,
-            color: "var(--color-toast)",
+            color: "var(--color-text)",
             marginBottom: "0.375rem",
           }}
         >
@@ -83,8 +79,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           onChange={(e) => setName(e.target.value)}
           required
           placeholder="Tu nombre"
-          className="input-craft"
-          style={{ paddingLeft: "0.875rem" }}
+          className="input-dark"
         />
       </div>
 
@@ -95,7 +90,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             fontFamily: "var(--font-sans)",
             fontSize: "0.8125rem",
             fontWeight: 600,
-            color: "var(--color-toast)",
+            color: "var(--color-text)",
             marginBottom: "0.375rem",
           }}
         >
@@ -107,8 +102,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           placeholder="tu@email.com"
-          className="input-craft"
-          style={{ paddingLeft: "0.875rem" }}
+          className="input-dark"
         />
       </div>
 
@@ -119,7 +113,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             fontFamily: "var(--font-sans)",
             fontSize: "0.8125rem",
             fontWeight: 600,
-            color: "var(--color-toast)",
+            color: "var(--color-text)",
             marginBottom: "0.375rem",
           }}
         >
@@ -132,66 +126,19 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           required
           minLength={6}
           placeholder="Mínimo 6 caracteres"
-          className="input-craft"
-          style={{ paddingLeft: "0.875rem" }}
-        />
-      </div>
-
-      <div>
-        <label
-          style={{
-            display: "block",
-            fontFamily: "var(--font-sans)",
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            color: "var(--color-toast)",
-            marginBottom: "0.375rem",
-          }}
-        >
-          Teléfono <span style={{ fontWeight: 400, color: "var(--color-toast-muted)" }}>(opcional)</span>
-        </label>
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="+54 11 1234 5678"
-          className="input-craft"
-          style={{ paddingLeft: "0.875rem" }}
-        />
-      </div>
-
-      <div>
-        <label
-          style={{
-            display: "block",
-            fontFamily: "var(--font-sans)",
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            color: "var(--color-toast)",
-            marginBottom: "0.375rem",
-          }}
-        >
-          Dirección <span style={{ fontWeight: 400, color: "var(--color-toast-muted)" }}>(opcional)</span>
-        </label>
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Tu dirección para retirar"
-          className="input-craft"
-          style={{ paddingLeft: "0.875rem" }}
+          className="input-dark"
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="btn-craft-primary"
+        className="btn-neon-green"
         style={{ marginTop: "0.25rem", width: "100%", justifyContent: "center" }}
       >
         {loading ? (
           <>
-            <div className="spinner-craft" style={{ width: "16px", height: "16px" }} />
+            <div className="spinner-neon" />
             Creando cuenta...
           </>
         ) : (

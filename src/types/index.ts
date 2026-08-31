@@ -7,6 +7,36 @@ export interface User {
   address?: string | null;
 }
 
+// ─── Product models ─────────────────────────────────────────────────────────
+
+export type Presentation = "SIXPACK" | "BOTTLE" | "CAN" | "SINGLE";
+
+export interface Category {
+  id: string;
+  name: string;
+  icon?: string | null;
+  order: number;
+  isActive: boolean;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description?: string | null;
+  categoryId: string;
+  presentation: Presentation;
+  regularPrice: number;
+  promoPrice: number;
+  stock: number;
+  imageUrl?: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  category?: Category;
+}
+
+// ─── Legacy (Beer Drop era) ─────────────────────────────────────────────────
+
 export interface Beer {
   id: string;
   name: string;
@@ -17,6 +47,8 @@ export interface Beer {
   isActive: boolean;
   createdAt: Date;
 }
+
+// ─── Orders ─────────────────────────────────────────────────────────────────
 
 export interface Order {
   id: string;
@@ -50,8 +82,10 @@ export type OrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
+// ─── Cart ───────────────────────────────────────────────────────────────────
+
 export interface CartItem {
-  beerId: string;
-  beer: Beer;
+  productId: string;
+  product: Product;
   quantity: number;
 }

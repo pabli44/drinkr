@@ -1,36 +1,48 @@
 @import "tailwindcss";
 
 @theme {
-  /* ─── Liquid Gold / Editorial Cervecero ─── */
+  /* ─── Neon Discount / Deal Hunter ─── */
 
-  /* Palette */
-  --color-cream: #FFF8E7;
-  --color-cream-dark: #F5EDD8;
-  --color-amber-deep: #C47F17;
-  --color-amber-dark: #A66812;
-  --color-amber-light: #E8A84C;
-  --color-copper: #B87333;
-  --color-copper-light: #D4956A;
-  --color-toast: #1A1612;
-  --color-toast-muted: #3D3530;
-  --color-paper: #FDF6E3;
+  /* Backgrounds */
+  --color-base: #0D0D0D;
+  --color-surface: #161616;
+  --color-surface-raised: #1E1E1E;
+  --color-surface-hover: #252525;
+  --color-border: #2A2A2A;
+  --color-border-bright: #3D3D3D;
+
+  /* Neon accents */
+  --color-neon-green: #00E676;
+  --color-neon-green-dim: #00C853;
+  --color-neon-orange: #FF6D00;
+  --color-neon-orange-dim: #E65100;
+  --color-neon-yellow: #FFEA00;
+
+  /* Text */
+  --color-text: #FFFFFF;
+  --color-text-muted: #9E9E9E;
+  --color-text-dim: #616161;
+
+  /* Semantic */
+  --color-discount: #EF4444;
+  --color-success: #00E676;
 
   /* Typography */
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-display: var(--font-syne), "Arial Black", sans-serif;
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
 
-  /* Shadows */
-  --shadow-card: 0 2px 8px rgba(26, 22, 18, 0.08), 0 1px 2px rgba(26, 22, 18, 0.04);
-  --shadow-card-hover: 0 8px 24px rgba(26, 22, 18, 0.12), 0 2px 8px rgba(26, 22, 18, 0.06);
-  --shadow-nav: 0 1px 0 rgba(196, 127, 23, 0.15);
-  --shadow-float: 0 4px 16px rgba(26, 22, 18, 0.10), 0 2px 4px rgba(26, 22, 18, 0.06);
-  --shadow-inset: inset 0 1px 2px rgba(26, 22, 18, 0.06);
+  /* Shadows / glows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --glow-green: 0 0 20px rgba(0, 230, 118, 0.3);
+  --glow-orange: 0 0 20px rgba(255, 109, 0, 0.3);
+  --glow-subtle: 0 0 12px rgba(0, 230, 118, 0.15);
 
   /* Border radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 }
 
@@ -40,72 +52,51 @@ html {
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-toast);
+  background-color: var(--color-base);
+  color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* ─── Paper texture overlay ─── */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
-
 /* ─── Selection ─── */
 ::selection {
-  background-color: var(--color-amber-deep);
-  color: var(--color-cream);
+  background-color: var(--color-neon-green);
+  color: var(--color-base);
 }
 
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-cream-dark);
+  background: var(--color-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-amber-deep);
+  background: var(--color-border-bright);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-amber-dark);
+  background: var(--color-text-muted);
 }
 
 /* ─── Focus ─── */
 :focus-visible {
-  outline: 2px solid var(--color-copper);
+  outline: 2px solid var(--color-neon-green);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
-/* ─── Typography scale ─── */
+/* ─── Typography ─── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: var(--color-toast);
+  line-height: 1.1;
+  color: var(--color-text);
 }
 
-/* ─── Form elements ─── */
-input, select, textarea {
-  font-family: var(--font-sans);
-}
-
-button {
-  font-family: var(--font-sans);
-}
-
-/* ─── Link underline offset ─── */
 a {
   text-underline-offset: 3px;
 }
@@ -113,228 +104,286 @@ a {
 /* ─── Display headings ─── */
 .text-display-xl {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 700;
+  font-size: clamp(3rem, 9vw, 6rem);
+  font-weight: 900;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 0.95;
+  color: var(--color-text);
 }
 
 .text-display-lg {
   font-family: var(--font-display);
-  font-size: clamp(2.25rem, 5vw, 3.5rem);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
   letter-spacing: -0.025em;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .text-display-md {
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
-  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
-/* ─── Label style ─── */
-.label-craft {
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-copper);
+/* ─── Neon text ─── */
+.text-neon-green {
+  color: var(--color-neon-green);
+  text-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
 }
 
-/* ─── Price style ─── */
-.price-display {
+.text-neon-orange {
+  color: var(--color-neon-orange);
+  text-shadow: 0 0 20px rgba(255, 109, 0, 0.4);
+}
+
+.text-price-old {
+  color: var(--color-discount);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.text-price-new {
+  color: var(--color-neon-green);
   font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--color-amber-deep);
+  font-weight: 800;
 }
 
-/* ─── Card ─── */
-.card-craft {
-  background: white;
+/* ─── Cards ─── */
+.card-product {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  border: 1px solid rgba(196, 127, 23, 0.08);
   overflow: hidden;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-craft:hover {
+.card-product:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-border-bright);
   box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
 }
 
-/* ─── Button primary ─── */
-.btn-craft-primary {
+.card-product.out-of-stock {
+  opacity: 0.5;
+}
+
+/* ─── Buttons ─── */
+.btn-neon-green {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: var(--color-amber-deep);
-  color: white;
-  font-weight: 600;
+  background-color: var(--color-neon-green);
+  color: var(--color-base);
+  font-family: var(--font-sans);
+  font-weight: 700;
   font-size: 0.9375rem;
   padding: 0.625rem 1.5rem;
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 4px rgba(196, 127, 23, 0.25);
+  box-shadow: var(--glow-green);
 }
 
-.btn-craft-primary:hover {
-  background-color: var(--color-amber-dark);
+.btn-neon-green:hover {
+  background-color: var(--color-neon-green-dim);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(196, 127, 23, 0.3);
+  box-shadow: 0 0 28px rgba(0, 230, 118, 0.5);
 }
 
-.btn-craft-primary:active {
+.btn-neon-green:active {
   transform: translateY(0);
-  box-shadow: var(--shadow-inset);
 }
 
-/* ─── Button secondary ─── */
-.btn-craft-secondary {
+.btn-neon-orange {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: transparent;
-  color: var(--color-toast);
-  font-weight: 600;
+  background-color: var(--color-neon-orange);
+  color: var(--color-base);
+  font-family: var(--font-sans);
+  font-weight: 700;
   font-size: 0.9375rem;
-  padding: 0.5625rem 1.375rem;
+  padding: 0.625rem 1.5rem;
   border-radius: var(--radius-md);
-  border: 1.5px solid var(--color-toast);
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
-}
-
-.btn-craft-secondary:hover {
-  background-color: var(--color-toast);
-  color: var(--color-cream);
-  transform: translateY(-1px);
-}
-
-.btn-craft-secondary:active {
-  transform: translateY(0);
-}
-
-/* ─── Button ghost ─── */
-.btn-craft-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background-color: transparent;
-  color: var(--color-amber-deep);
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--radius-sm);
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: var(--glow-orange);
 }
 
-.btn-craft-ghost:hover {
-  background-color: rgba(196, 127, 23, 0.08);
+.btn-neon-orange:hover {
+  background-color: var(--color-neon-orange-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 0 28px rgba(255, 109, 0, 0.5);
+}
+
+.btn-neon-orange:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  border-color: var(--color-border-bright);
 }
 
 /* ─── Input ─── */
-.input-craft {
+.input-dark {
   width: 100%;
   padding: 0.625rem 0.875rem;
-  border: 1.5px solid rgba(26, 22, 18, 0.15);
+  background: var(--color-surface-raised);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: white;
-  color: var(--color-toast);
+  color: var(--color-text);
+  font-family: var(--font-sans);
   font-size: 0.9375rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: var(--shadow-inset);
 }
 
-.input-craft:focus {
+.input-dark:focus {
   outline: none;
-  border-color: var(--color-amber-deep);
-  box-shadow: 0 0 0 3px rgba(196, 127, 23, 0.12);
+  border-color: var(--color-neon-green);
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.12);
 }
 
-.input-craft::placeholder {
-  color: var(--color-toast-muted);
-  opacity: 0.6;
+.input-dark::placeholder {
+  color: var(--color-text-dim);
 }
 
 /* ─── Badge ─── */
-.badge-craft {
+.badge-savings {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.25rem 0.625rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(0, 230, 118, 0.12);
+  border: 1px solid rgba(0, 230, 118, 0.25);
   border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  color: var(--color-neon-green);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-/* ─── Divider ─── */
-.divider-craft {
-  border: none;
-  border-top: 1px solid rgba(26, 22, 18, 0.08);
-  margin: 2rem 0;
+.badge-presentation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-category {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.badge-category:hover,
+.badge-category.active {
+  background: var(--color-surface-hover);
+  border-color: var(--color-neon-green);
+  color: var(--color-neon-green);
+}
+
+/* ─── Spinner ─── */
+@keyframes spin-neon {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-neon {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(0, 230, 118, 0.2);
+  border-top-color: var(--color-neon-green);
+  border-radius: 50%;
+  animation: spin-neon 0.7s linear infinite;
 }
 
 /* ─── Section spacing ─── */
-.section-craft {
-  padding: 5rem 0;
+.section-dark {
+  padding: 4rem 0;
 }
 
-.section-craft + .section-craft {
-  padding-top: 0;
-}
-
-/* ─── Container ─── */
-.container-craft {
+.container-dark {
   width: 100%;
   max-width: 72rem;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-/* ─── Loading spinner ─── */
-@keyframes spin-craft {
-  to { transform: rotate(360deg); }
-}
-
-.spinner-craft {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid rgba(196, 127, 23, 0.2);
-  border-top-color: var(--color-amber-deep);
-  border-radius: 50%;
-  animation: spin-craft 0.7s linear infinite;
-}
-
-/* ─── Grain texture overlay ─── */
-.grain-overlay {
-  position: relative;
-}
-.grain-overlay::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  border-radius: inherit;
-}
-
-/* ─── Responsive helpers ─── */
+/* ─── Responsive ─── */
 @media (max-width: 640px) {
-  .section-craft {
-    padding: 3.5rem 0;
+  .section-dark {
+    padding: 3rem 0;
   }
+}
+
+/* ─── Utility classes ─── */
+.border-neon-green {
+  border-color: var(--color-neon-green);
+}
+
+.border-neon-orange {
+  border-color: var(--color-neon-orange);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.bg-surface-raised {
+  background-color: var(--color-surface-raised);
+}
+
+.divider-dark {
+  border: none;
+  border-top: 1px solid var(--color-border);
 }
