@@ -351,17 +351,17 @@ function HowItWorksSection() {
     {
       num: "01",
       title: "Recorre el catálogo",
-      desc: "Entrá, elegí la categoría, buscá lo que necesites.",
+      desc: "Entrá, elige la categoría, busca lo que necesites.",
     },
     {
       num: "02",
-      title: "Elegí tus productos",
-      desc: "Agregá al carrito la cantidad que quieras. Verás el ahorro siempre.",
+      title: "Elige tus productos",
+      desc: "Agrega al carrito la cantidad que quieras. Verás el ahorro siempre.",
     },
     {
       num: "03",
-      title: "Pedí por WhatsApp",
-      desc: "Tocás 'Pedir' y se abre WhatsApp con tu pedido listo.",
+      title: "Pide por WhatsApp",
+      desc: "Dale a 'Pedir' y se abre WhatsApp con los detalles, para finalizar el pedido.",
     },
   ];
 
