@@ -1,12 +1,3 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: "ADMIN" | "CLIENT";
-  phone?: string | null;
-  address?: string | null;
-}
-
 // ─── Product models ─────────────────────────────────────────────────────────
 
 export type Presentation = "SIXPACK" | "BOTTLE" | "CAN" | "SINGLE";
@@ -34,53 +25,6 @@ export interface Product {
   updatedAt: Date;
   category?: Category;
 }
-
-// ─── Legacy (Beer Drop era) ─────────────────────────────────────────────────
-
-export interface Beer {
-  id: string;
-  name: string;
-  description?: string | null;
-  pricePerLiter: number;
-  stockInLiters: number;
-  imageUrl?: string | null;
-  isActive: boolean;
-  createdAt: Date;
-}
-
-// ─── Orders ─────────────────────────────────────────────────────────────────
-
-export interface Order {
-  id: string;
-  userId: string;
-  status: OrderStatus;
-  totalAmount: number;
-  stripeSessionId?: string | null;
-  notes?: string | null;
-  createdAt: Date;
-  paidAt?: Date | null;
-  preparedAt?: Date | null;
-  deliveredAt?: Date | null;
-  items?: OrderItem[];
-  user?: User;
-}
-
-export interface OrderItem {
-  id: string;
-  orderId: string;
-  beerId: string;
-  quantity: number;
-  unitPrice: number;
-  beer?: Beer;
-}
-
-export type OrderStatus =
-  | "PENDING"
-  | "PAID"
-  | "PREPARING"
-  | "READY"
-  | "DELIVERED"
-  | "CANCELLED";
 
 // ─── Cart ───────────────────────────────────────────────────────────────────
 
