@@ -273,7 +273,7 @@ function CategoriesSection() {
               letterSpacing: "-0.025em",
             }}
           >
-            ¿Qué andás buscando?
+            ¿Qué andas buscando?
           </h2>
         </div>
 
@@ -350,7 +350,7 @@ function HowItWorksSection() {
   const steps = [
     {
       num: "01",
-      title: "Navegá el catálogo",
+      title: "Recorre el catálogo",
       desc: "Entrá, elegí la categoría, buscá lo que necesites.",
     },
     {
@@ -397,7 +397,7 @@ function HowItWorksSection() {
               letterSpacing: "-0.025em",
             }}
           >
-            Tres pasos, sin注册的.
+            Tres pasos, cero dramas.
           </h2>
         </div>
 
@@ -497,7 +497,7 @@ function CTABanner() {
               lineHeight: 1.6,
             }}
           >
-            No te quedés con el precio lleno. Mandanos un pedido y lo tenés.
+            No te quedes con el precio lleno. Mándanos un pedido y lo tienes.
           </p>
         </div>
         <Link

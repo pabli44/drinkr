@@ -245,7 +245,7 @@ export default function AdminProductsPage() {
                 color: "var(--color-text)",
               }}
             >
-              Sin productos todavía
+              Sin productos por ahora
             </p>
             <button
               onClick={openCreateForm}
