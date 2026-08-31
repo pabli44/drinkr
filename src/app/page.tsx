@@ -1,50 +1,21 @@
 "use client";
 
 /**
- * THESIS: Cerveza artesanal premium, directa de la cervecería. Sin intermediarios, sin desperdicio.
- * OWN-WORLD: Cream #FFF8E7 + Toast #1A1612 + Amber Deep #C47F17 + Copper #B87333. Editorial grid.
- * STORY: El usuario descubre cerveza artesanal real, entiende el modelo, y actúa.
- * FIRST VIEWPORT: Dark toast hero, display heading "Beer Drop", subline, two CTAs. Above the fold.
- * FORM: Liquid Gold / Editorial Cervecero — seed 4f3fcaac, assigned index 5
+ * THESIS: drinkr es un marketplace de ahorro en bebidas. El usuario siente que encontró algo bueno, que el precio vale la pena.
+ * OWN-WORLD: Base #0D0D0D + Neon green #00E676 + Neon orange #FF6D00. Syne display + DM Sans UI. Deal hunter aesthetic.
+ * STORY: El usuario descubre que drinkr tiene las mismas bebidas más barato. Navega, encuentra lo que quiere, pide por WhatsApp.
+ * FIRST VIEWPORT: Dark hero, headline "Ahorra en tus bebidas favoritas", savings ticker, category pills.
+ * FORM: Neon Discount / Deal Hunter — energia de cazador de ofertas
  * FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
  */
 
 import Link from "next/link";
 
-// ─── SVG Icons ────────────────────────────────────────────────────────────────
-
-function IconFlask() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 3h6v5.5l4 7.5H5l4-7.5V3z"/>
-      <path d="M9 3h6"/>
-      <path d="M6 16h12"/>
-    </svg>
-  );
-}
-
-function IconDrop() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-    </svg>
-  );
-}
-
-function IconHandOver() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
-      <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
-      <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
-      <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
-    </svg>
-  );
-}
+// ─── Icons ─────────────────────────────────────────────────────────────────
 
 function IconArrowRight() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 12h14M12 5l7 7-7 7"/>
     </svg>
   );
@@ -58,38 +29,53 @@ function IconChevronRight() {
   );
 }
 
-// ─── Section: Hero ───────────────────────────────────────────────────────────
+function IconWhatsApp() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  );
+}
+
+// ─── Hero ────────────────────────────────────────────────────────────────────
 
 function HeroSection() {
   return (
     <section
       style={{
-        backgroundColor: "var(--color-toast)",
+        backgroundColor: "var(--color-base)",
         position: "relative",
         overflow: "hidden",
+        paddingTop: "5rem",
+        paddingBottom: "4rem",
       }}
     >
-      {/* Background texture */}
+      {/* Grid pattern overlay */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,
-          opacity: 0.06,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          opacity: 0.03,
+          backgroundImage: `
+            linear-gradient(var(--color-neon-green) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-neon-green) 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
         }}
       />
 
-      {/* Amber accent line top */}
+      {/* Glow accent */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "linear-gradient(90deg, var(--color-amber-deep), var(--color-copper), var(--color-amber-deep))",
+          top: "-20%",
+          right: "-10%",
+          width: "500px",
+          height: "500px",
+          background: "radial-gradient(circle, rgba(0, 230, 118, 0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
         }}
       />
 
@@ -97,145 +83,121 @@ function HeroSection() {
         style={{
           maxWidth: "72rem",
           margin: "0 auto",
-          padding: "6rem 1.5rem 5rem",
+          padding: "0 1.5rem",
           position: "relative",
           zIndex: 1,
         }}
       >
         {/* Label */}
-        <p
+        <div
           style={{
-            fontFamily: "var(--font-sans)",
-            fontSize: "0.6875rem",
-            fontWeight: 700,
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            color: "var(--color-copper)",
-            marginBottom: "1.25rem",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.375rem",
+            padding: "0.3rem 0.75rem",
+            background: "rgba(0, 230, 118, 0.1)",
+            border: "1px solid rgba(0, 230, 118, 0.2)",
+            borderRadius: "var(--radius-full)",
+            marginBottom: "1.5rem",
           }}
         >
-          Cerveza artesanal · Sin intermediarios
-        </p>
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              backgroundColor: "var(--color-neon-green)",
+              boxShadow: "0 0 6px var(--color-neon-green)",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "var(--color-neon-green)",
+            }}
+          >
+            Ofertas en bebidas
+          </span>
+        </div>
 
         {/* Heading */}
         <h1
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: "clamp(3.5rem, 10vw, 6.5rem)",
+            fontSize: "clamp(3rem, 10vw, 5.5rem)",
             fontWeight: 900,
-            color: "var(--color-cream)",
-            letterSpacing: "-0.035em",
-            lineHeight: 1.0,
-            maxWidth: "14ch",
-            marginBottom: "1.75rem",
+            color: "var(--color-text)",
+            letterSpacing: "-0.04em",
+            lineHeight: 0.95,
+            maxWidth: "12ch",
+            marginBottom: "1.5rem",
           }}
         >
-          Tu cerveza,
-          <br />
-          <span style={{ color: "var(--color-amber-light)" }}>por litros.</span>
+          Ahorra en{" "}
+          <span
+            style={{
+              color: "var(--color-neon-green)",
+              textShadow: "0 0 40px rgba(0, 230, 118, 0.5)",
+            }}
+          >
+            tus bebidas
+          </span>{" "}
+          favoritas
         </h1>
 
         {/* Subline */}
         <p
           style={{
             fontFamily: "var(--font-sans)",
-            fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
-            color: "rgba(255, 248, 231, 0.65)",
-            maxWidth: "42ch",
+            fontSize: "clamp(1rem, 2.5vw, 1.125rem)",
+            color: "var(--color-text-muted)",
+            maxWidth: "44ch",
             lineHeight: 1.65,
-            marginBottom: "2.5rem",
+            marginBottom: "2rem",
           }}
         >
-          Pedís exactamente los litros que necesitás. Sin desperdicio. Fresca,
-          directamente de la cervecería a tu mesa. Sin道士, sin compromisos.
+          Las mismas marcas que en el supermercado, pero a precio de promoción.
+          Sin intermediarios. Sin trámites.
         </p>
 
-        {/* CTAs */}
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+        {/* CTA */}
+        <div style={{ display: "flex", gap: "0.875rem", flexWrap: "wrap" }}>
           <Link
-            href="/menu"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              backgroundColor: "var(--color-amber-deep)",
-              color: "white",
-              fontFamily: "var(--font-sans)",
-              fontWeight: 600,
-              fontSize: "1rem",
-              padding: "0.75rem 1.75rem",
-              borderRadius: "8px",
-              textDecoration: "none",
-              transition: "background-color 0.2s, transform 0.15s, box-shadow 0.2s",
-              boxShadow: "0 4px 12px rgba(196, 127, 23, 0.35)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--color-amber-dark)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 16px rgba(196, 127, 23, 0.45)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--color-amber-deep)";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(196, 127, 23, 0.35)";
-            }}
+            href="#categorias"
+            className="btn-neon-green"
           >
-            Ver Carta
+            Ver productos
             <IconArrowRight />
-          </Link>
-          <Link
-            href="/register"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              backgroundColor: "transparent",
-              color: "var(--color-cream)",
-              fontFamily: "var(--font-sans)",
-              fontWeight: 600,
-              fontSize: "1rem",
-              padding: "0.6875rem 1.625rem",
-              borderRadius: "8px",
-              border: "1.5px solid rgba(255, 248, 231, 0.3)",
-              textDecoration: "none",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(255, 248, 231, 0.08)";
-              e.currentTarget.style.borderColor = "rgba(255, 248, 231, 0.6)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.borderColor = "rgba(255, 248, 231, 0.3)";
-            }}
-          >
-            Crear Cuenta
           </Link>
         </div>
 
-        {/* Social proof strip */}
+        {/* Trust strip */}
         <div
           style={{
-            marginTop: "4rem",
+            marginTop: "3.5rem",
             paddingTop: "2rem",
-            borderTop: "1px solid rgba(255, 248, 231, 0.1)",
+            borderTop: "1px solid var(--color-border)",
             display: "flex",
             gap: "2.5rem",
             flexWrap: "wrap",
           }}
         >
           {[
-            { value: "Litros exactos", label: "Sin desperdicio" },
-            { value: "Fresca", label: "Directo de la cervecería" },
-            { value: "0%", label: "Intermediarios" },
+            { value: "Sin registro", label: "Pedí por WhatsApp" },
+            { value: "Precios promo", label: "Que no encontrás en otro lado" },
+            { value: "Stock real", label: "Actualizado al momento" },
           ].map(({ value, label }) => (
             <div key={label}>
               <p
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: "1.5rem",
-                  fontWeight: 700,
-                  color: "var(--color-amber-light)",
+                  fontSize: "1.125rem",
+                  fontWeight: 800,
+                  color: "var(--color-text)",
                   letterSpacing: "-0.02em",
                 }}
               >
@@ -244,10 +206,10 @@ function HeroSection() {
               <p
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "0.75rem",
-                  color: "rgba(255, 248, 231, 0.45)",
+                  fontSize: "0.6875rem",
+                  color: "var(--color-text-dim)",
                   fontWeight: 500,
-                  letterSpacing: "0.05em",
+                  letterSpacing: "0.06em",
                   textTransform: "uppercase",
                   marginTop: "0.125rem",
                 }}
@@ -262,38 +224,33 @@ function HeroSection() {
   );
 }
 
-// ─── Section: Cómo funciona ─────────────────────────────────────────────────
+// ─── Categories ─────────────────────────────────────────────────────────────
 
-function HowItWorksSection() {
-  const steps = [
-    {
-      number: "01",
-      icon: <IconFlask />,
-      title: "Elegí tu cerveza",
-      description:
-        "Navegá nuestra carta de artesanales. Cada una con descripción, estilo y precio por litro. Sin sorpresas.",
-    },
-    {
-      number: "02",
-      icon: <IconDrop />,
-      title: "Pedí por litros",
-      description:
-        "La cantidad exacta que necesitás. 0.5L, 1.5L, 3L — lo que vos definas. Sin mínimo, sin desperdicio.",
-    },
-    {
-      number: "03",
-      icon: <IconHandOver />,
-      title: "Recibí tu pedido",
-      description:
-        "Pagás online, nosotros preparamos. Venís a buscar o coordinamos el retiro. Tu cerveza, fresca.",
-    },
+function CategoriesSection() {
+  const categories = [
+    { id: "cerveza", name: "Cerveza", emoji: "🍺", href: "/menu?cat=cerveza" },
+    { id: "gaseosa", name: "Gaseosa", emoji: "🥤", href: "/menu?cat=gaseosa" },
   ];
 
   return (
-    <section style={{ padding: "5rem 0", backgroundColor: "var(--color-cream)" }}>
-      <div style={{ maxWidth: "72rem", margin: "0 auto", padding: "0 1.5rem" }}>
+    <section
+      id="categorias"
+      style={{
+        padding: "4rem 0",
+        backgroundColor: "var(--color-surface)",
+        borderTop: "1px solid var(--color-border)",
+        borderBottom: "1px solid var(--color-border)",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "72rem",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+        }}
+      >
         {/* Header */}
-        <div style={{ marginBottom: "3.5rem", maxWidth: "36ch" }}>
+        <div style={{ marginBottom: "2rem" }}>
           <p
             style={{
               fontFamily: "var(--font-sans)",
@@ -301,77 +258,179 @@ function HowItWorksSection() {
               fontWeight: 700,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              color: "var(--color-copper)",
-              marginBottom: "0.875rem",
+              color: "var(--color-text-dim)",
+              marginBottom: "0.5rem",
             }}
           >
-            El proceso
+            Categorías
           </p>
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.875rem, 4vw, 2.75rem)",
-              fontWeight: 700,
-              color: "var(--color-toast)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              fontWeight: 800,
+              color: "var(--color-text)",
               letterSpacing: "-0.025em",
-              lineHeight: 1.15,
             }}
           >
-            Tres pasos, cero complicaciones.
+            ¿Qué andas buscando?
           </h2>
         </div>
 
-        {/* Steps grid */}
+        {/* Category cards */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "2.5rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "1rem",
           }}
         >
-          {steps.map(({ number, icon, title, description }) => (
-            <div key={number}>
-              {/* Number + icon row */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  marginBottom: "1.25rem",
-                }}
-              >
-                <span
+          {categories.map(({ id, name, emoji, href }) => (
+            <Link
+              key={id}
+              href={href}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+                padding: "1.25rem 1.5rem",
+                backgroundColor: "var(--color-surface-raised)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-lg)",
+                textDecoration: "none",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-neon-green)";
+                e.currentTarget.style.backgroundColor = "rgba(0, 230, 118, 0.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.backgroundColor = "var(--color-surface-raised)";
+              }}
+            >
+              <span style={{ fontSize: "2rem" }}>{emoji}</span>
+              <div>
+                <p
                   style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: "3rem",
-                    fontWeight: 900,
-                    color: "rgba(196, 127, 23, 0.12)",
-                    letterSpacing: "-0.04em",
-                    lineHeight: 1,
+                    fontSize: "1.125rem",
+                    fontWeight: 700,
+                    color: "var(--color-text)",
+                    letterSpacing: "-0.01em",
                   }}
                 >
-                  {number}
-                </span>
-                <span
+                  {name}
+                </p>
+                <p
                   style={{
-                    color: "var(--color-amber-deep)",
-                    opacity: 0.7,
-                    marginTop: "0.25rem",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "0.75rem",
+                    color: "var(--color-text-dim)",
+                    marginTop: "0.125rem",
                   }}
                 >
-                  {icon}
-                </span>
+                  Ver ofertas
+                </p>
               </div>
+              <span style={{ marginLeft: "auto", color: "var(--color-text-dim)" }}>
+                <IconChevronRight />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-              {/* Content */}
+// ─── How it works ───────────────────────────────────────────────────────────
+
+function HowItWorksSection() {
+  const steps = [
+    {
+      num: "01",
+      title: "Recorre el catálogo",
+      desc: "Entrá, elige la categoría, busca lo que necesites.",
+    },
+    {
+      num: "02",
+      title: "Elige tus productos",
+      desc: "Agrega al carrito la cantidad que quieras. Verás el ahorro siempre.",
+    },
+    {
+      num: "03",
+      title: "Pide por WhatsApp",
+      desc: "Dale a 'Pedir' y se abre WhatsApp con los detalles, para finalizar el pedido.",
+    },
+  ];
+
+  return (
+    <section style={{ padding: "4rem 0", backgroundColor: "var(--color-base)" }}>
+      <div
+        style={{
+          maxWidth: "72rem",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+        }}
+      >
+        <div style={{ marginBottom: "2.5rem" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "var(--color-text-dim)",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Así funciona
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
+              fontWeight: 800,
+              color: "var(--color-text)",
+              letterSpacing: "-0.025em",
+            }}
+          >
+            Tres pasos, cero dramas.
+          </h2>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "2rem",
+          }}
+        >
+          {steps.map(({ num, title, desc }) => (
+            <div key={num}>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "2.5rem",
+                  fontWeight: 900,
+                  color: "rgba(0, 230, 118, 0.12)",
+                  letterSpacing: "-0.04em",
+                  lineHeight: 1,
+                  marginBottom: "0.75rem",
+                }}
+              >
+                {num}
+              </p>
               <h3
                 style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: "1.1875rem",
-                  fontWeight: 600,
-                  color: "var(--color-toast)",
-                  letterSpacing: "-0.015em",
-                  marginBottom: "0.625rem",
+                  fontSize: "1.0625rem",
+                  fontWeight: 700,
+                  color: "var(--color-text)",
+                  letterSpacing: "-0.01em",
+                  marginBottom: "0.5rem",
                 }}
               >
                 {title}
@@ -379,12 +438,12 @@ function HowItWorksSection() {
               <p
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "0.9375rem",
-                  color: "var(--color-toast-muted)",
-                  lineHeight: 1.65,
+                  fontSize: "0.875rem",
+                  color: "var(--color-text-muted)",
+                  lineHeight: 1.6,
                 }}
               >
-                {description}
+                {desc}
               </p>
             </div>
           ))}
@@ -394,16 +453,15 @@ function HowItWorksSection() {
   );
 }
 
-// ─── Section: CTA Banner ─────────────────────────────────────────────────────
+// ─── CTA Banner ─────────────────────────────────────────────────────────────
 
 function CTABanner() {
   return (
     <section
       style={{
-        backgroundColor: "var(--color-cream-dark)",
-        borderTop: "1px solid rgba(196, 127, 23, 0.12)",
-        borderBottom: "1px solid rgba(196, 127, 23, 0.12)",
         padding: "4rem 0",
+        backgroundColor: "var(--color-surface)",
+        borderTop: "1px solid var(--color-border)",
       }}
     >
       <div
@@ -418,100 +476,54 @@ function CTABanner() {
           flexWrap: "wrap",
         }}
       >
-        <div style={{ maxWidth: "40ch" }}>
+        <div style={{ maxWidth: "36ch" }}>
           <h2
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.5rem, 3vw, 2rem)",
-              fontWeight: 700,
-              color: "var(--color-toast)",
+              fontSize: "clamp(1.375rem, 3vw, 1.875rem)",
+              fontWeight: 800,
+              color: "var(--color-text)",
               letterSpacing: "-0.02em",
               marginBottom: "0.5rem",
             }}
           >
-            ¿Primera vez?
+            ¿Ves algo que te sirve?
           </h2>
           <p
             style={{
               fontFamily: "var(--font-sans)",
               fontSize: "0.9375rem",
-              color: "var(--color-toast-muted)",
+              color: "var(--color-text-muted)",
               lineHeight: 1.6,
             }}
           >
-            Crear una cuenta toma 30 segundos. Después, cada pedido es aún más rápido.
+            No te quedes con el precio lleno. Mándanos un pedido y lo tienes.
           </p>
         </div>
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-          <Link
-            href="/register"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              backgroundColor: "var(--color-amber-deep)",
-              color: "white",
-              fontFamily: "var(--font-sans)",
-              fontWeight: 600,
-              fontSize: "0.9375rem",
-              padding: "0.6875rem 1.5rem",
-              borderRadius: "8px",
-              textDecoration: "none",
-              transition: "background-color 0.2s, transform 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--color-amber-dark)";
-              e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--color-amber-deep)";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            Crear cuenta gratis
-            <IconChevronRight />
-          </Link>
-          <Link
-            href="/menu"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              backgroundColor: "transparent",
-              color: "var(--color-toast)",
-              fontFamily: "var(--font-sans)",
-              fontWeight: 600,
-              fontSize: "0.9375rem",
-              padding: "0.625rem 1.375rem",
-              borderRadius: "8px",
-              border: "1.5px solid rgba(26, 22, 18, 0.2)",
-              textDecoration: "none",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "var(--color-toast)";
-              e.currentTarget.style.backgroundColor = "var(--color-toast)";
-              e.currentTarget.style.color = "var(--color-cream)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(26, 22, 18, 0.2)";
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--color-toast)";
-            }}
-          >
-            Ver carta sin cuenta
-          </Link>
-        </div>
+        <Link
+          href="#categorias"
+          className="btn-neon-orange"
+          style={{ flexShrink: 0 }}
+        >
+          <IconWhatsApp />
+          Ver catálogo
+        </Link>
       </div>
     </section>
   );
 }
 
-// ─── Section: Footer ────────────────────────────────────────────────────────
+// ─── Footer ─────────────────────────────────────────────────────────────────
 
 function Footer() {
   return (
-    <footer style={{ backgroundColor: "var(--color-toast)", padding: "2.5rem 0" }}>
+    <footer
+      style={{
+        backgroundColor: "var(--color-base)",
+        borderTop: "1px solid var(--color-border)",
+        padding: "2.5rem 0",
+      }}
+    >
       <div
         style={{
           maxWidth: "72rem",
@@ -529,48 +541,45 @@ function Footer() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "1rem",
-              fontWeight: 700,
-              color: "var(--color-cream)",
-              letterSpacing: "-0.01em",
+              fontWeight: 900,
+              color: "var(--color-text)",
+              letterSpacing: "-0.02em",
             }}
           >
-            Beer Drop
+            drinkr
+            <span style={{ color: "var(--color-neon-green)" }}>.</span>
           </p>
           <p
             style={{
               fontFamily: "var(--font-sans)",
               fontSize: "0.75rem",
-              color: "rgba(255, 248, 231, 0.35)",
+              color: "var(--color-text-dim)",
               marginTop: "0.25rem",
             }}
           >
-            Cerveza artesanal por litros. Sin desperdicio.
+            Ahorra en tus bebidas favoritas.
           </p>
         </div>
         <div style={{ display: "flex", gap: "1.5rem" }}>
-          {["/menu", "/login", "/register"].map((href) => (
+          {["#categorias"].map((href) => (
             <Link
               key={href}
               href={href}
               style={{
                 fontFamily: "var(--font-sans)",
                 fontSize: "0.8125rem",
-                color: "rgba(255, 248, 231, 0.4)",
+                color: "var(--color-text-dim)",
                 textDecoration: "none",
                 transition: "color 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--color-cream)";
+                e.currentTarget.style.color = "var(--color-text)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "rgba(255, 248, 231, 0.4)";
+                e.currentTarget.style.color = "var(--color-text-dim)";
               }}
             >
-              {href === "/menu"
-                ? "Carta"
-                : href === "/login"
-                ? "Iniciar Sesión"
-                : "Registrarse"}
+              Categorías
             </Link>
           ))}
         </div>
@@ -579,12 +588,13 @@ function Footer() {
   );
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <div className="min-h-[calc(100vh-4rem)]">
+    <div style={{ minHeight: "calc(100vh - 4rem)" }}>
       <HeroSection />
+      <CategoriesSection />
       <HowItWorksSection />
       <CTABanner />
       <Footer />

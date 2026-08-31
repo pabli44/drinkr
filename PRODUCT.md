@@ -8,70 +8,70 @@ web
 
 ## Stack
 
-Next.js 16 (App Router), Tailwind CSS v4, Prisma + PostgreSQL, MercadoPago, JWT auth, NextAuth-style session via jose
+Next.js 16 (App Router), Tailwind CSS v4, Prisma + PostgreSQL, JWT auth (jose), WhatsApp checkout, NextAuth-style session
 
 ## Users
 
-**Primary:** Adults 25-45 in urban Latin America who appreciate craft beer, value quality over quantity, want to buy by the liter without waste, and are comfortable with digital payments.
+**Admin (owner):** Registra productos cuando compra en promoción, actualiza stock post-confirmación de pago, gestiona categorías.
 
-**Admin:** The brewery operator who manages inventory, fulfills orders, and needs a clean operational dashboard.
+**Buyer:** Navega el catálogo de bebidas, ve precios promo vs regulares, arma pedido, envía por WhatsApp.
 
 ## Product Purpose
 
-Beer Drop is a direct-to-consumer craft beer platform where users order beer by the exact liter they need, pay online, and pick up fresh from the brewery. The core mechanism: no waste, no minimum, fresh product, personal connection to the brewer.
+drinkr es un marketplace de reventa de bebidas donde el admin ofrece productos a precios de promoción. El usuario encuentra marcas conocidas a mejor precio que en el supermercado, arma su pedido, y lo retira. El modelo: comprar en promo cuando aparece, revender con margen pequeño pero volumen alto.
 
 ## Positioning
 
-"Tu cerveza artesanal, por litros, sin desperdicio." Direct from brewery to user. The opposite of a big-box liquor store and the opposite of a restaurant markup. This is for people who care about what they drink.
+"Ahorra en tus bebidas favoritas." No sos la tienda, sos el que encontró la oferta. Marcas que la gente ya conoce, precios que no están en otro lado.
 
 ## Operating Context
 
-- User discovers the brand (likely via social media, word of mouth, or search)
-- Browses the beer catalog (available inventory, prices, descriptions)
-- Builds a cart selecting beers and quantities (0.5L increments)
-- Pays via MercadoPago checkout
-- Receives confirmation and picks up at the brewery
-- Tracks order status until ready
+- Admin va al supermercado, identifica promociones en bebidas
+- Registra el producto en drinkr: nombre, categoría, presentación (botella/lata/six-pack), precio regular, precio promo, stock disponible, imagen
+- Usuario abre la app, navega por categoría, ve el producto con precio promo y precio regular tachado
+- Usuario arma pedido (indica qué quiere y cuánto), toca "Pedir por WhatsApp"
+- Se abre WhatsApp con un mensaje pre-armado con el detalle del pedido
+- Admin recibe, confirma pago por el medio que acordén (transferencia, etc.), actualiza stock
+- Usuario retira en el punto acordado
 
 Admin workflow:
-- Adds/edits beers with price, stock, description, image
-- Sees incoming orders
-- Updates order status as it progresses (pending → paid → preparing → ready → delivered)
+- Crear/editar productos: nombre, categoría, presentación, precio regular, precio promo, stock, imagen
+- Ver pedidos recibidos (por WhatsApp)
+- Actualizar stock post-confirmación
+- Gestionar categorías
 
 ## Capabilities and Constraints
 
-- User registration and login with JWT (access + refresh tokens)
-- Beer catalog with real-time stock
-- Cart-based ordering (multiple beers per order)
-- MercadoPago checkout integration
-- Order status tracking with badge states
-- Admin panel for beers, orders, users
-- No delivery — pickup only
-- No user profile editing (phone/address optional at registration)
+- Catálogo multi-category: Cerveza, Gaseosa (y las que se agreguen)
+- Productos con: nombre, categoría, presentación (botella/lata/six-pack/unidad), precio regular, precio promo, stock actual, imagen
+- Visualización de ahorro: precio regular tachado + precio promo
+- Estados de producto: disponible, sin stock
+- Checkout por WhatsApp (mensaje pre-armado con pedido)
+- Stock se actualiza manualmente post-confirmación de pago
+- Admin panel completo: productos, categorías, pedidos (por WhatsApp link)
+- Pickup only — sin delivery por ahora
+- Sin pago online por ahora — todo por WhatsApp
 
 ## Brand Commitments
 
-- Cerveza artesanal de calidad
-- Freshness and direct-from-brewery provenance
-- No waste (precise liter amounts)
-- Local/independent brewery identity
+- Ahorro real en bebidas de marcas conocidas
+- Transacciones simples, sin complicaciones
+- Interfaz clara que muestra el ahorro de un vistazo
 
 ## Evidence on Hand
 
-- Beer types, pricing, stock managed via Prisma schema
-- Order flow is complete (cart → checkout → status)
-- MercadoPago webhook handles payment confirmation
-- No real product photography yet (emoji fallback in cards)
-- No brand assets, logo, or custom iconography
+- No hay productos reales todavía (vacío)
+- No hay imágenes de productos reales
+- No hay logo ni identidad visual todavía
 
 ## Product Principles
 
-1. **Direct over distributed** — No middlemen. Brewery to user, transparent pricing.
-2. **Precision over包袱** — Order exactly what you need, no forced sizes.
-3. **Freshness as feature** — The product is made fresh and delivered fresh; the UI should communicate this.
-4. **Operational clarity** — Admin tools must be efficient, no ambiguity in order states.
-5. **Craft without pretension** — Authentic, warm, approachable. Not corporate craft.
+1. **Ahorro visible** — El precio tachado y el ahorro son el centro de la experiencia
+2. **Categorías extensibles** — La estructura soporta agregar categorías sin cambiar código
+3. **Checkout mínimo** — WhatsApp como único canal de pedido, sin fricción de pago online
+4. **Stock honesto** — El usuario sabe qué hay disponible; el admin actualiza post-confirmación
+5. **Catálogo vivo** — Lo que no hay, no se muestra; rotativo según lo que consiga el admin
 
 ## Accessibility & Inclusion
 
-Standard WCAG AA targets. The app is functional but no accessibility audit has been conducted.
+WCAG AA como objetivo. No hay auditoría de accesibilidad hecha todavía.

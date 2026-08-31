@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans } from "next/font/google";
+import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 
-const fraunces = Fraunces({
+const syne = Syne({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "900"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-syne",
   display: "swap",
 });
 
@@ -19,9 +18,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Beer Drop — Cerveza Artesanal por Litros",
+  title: "drinkr — Ahorra en tus bebidas favoritas",
   description:
-    "Cerveza artesanal de calidad, pedida por litros exactos. Sin desperdicio, fresca, directo de la cervecería a tu mesa.",
+    "Encuentra las mejores ofertas en bebidas. Cerveza, gaseosas y más. Precios de promoción que no vas a encontrar en otro lado.",
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>",
   },
@@ -33,8 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${fraunces.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen" style={{ backgroundColor: "var(--color-cream)" }}>
+    <html lang="es" className={`${syne.variable} ${dmSans.variable}`}>
+      <body>
         <Navbar />
         <main>{children}</main>
       </body>
