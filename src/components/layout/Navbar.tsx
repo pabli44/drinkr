@@ -19,7 +19,6 @@ export function Navbar() {
           margin: "0 auto",
           padding: "0 1.5rem",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
           height: "4rem",
         }}
@@ -56,34 +55,6 @@ export function Navbar() {
           >
             .
           </span>
-        </Link>
-
-        {/* CTA */}
-        <Link
-          href="/menu"
-          style={{
-            backgroundColor: "var(--color-neon-green)",
-            color: "var(--color-base)",
-            fontSize: "0.8125rem",
-            fontWeight: 700,
-            textDecoration: "none",
-            padding: "0.4375rem 1rem",
-            borderRadius: "6px",
-            transition: "all 0.2s",
-            display: "inline-flex",
-            alignItems: "center",
-            boxShadow: "0 0 12px rgba(0, 230, 118, 0.3)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-neon-green-dim)";
-            e.currentTarget.style.boxShadow = "0 0 20px rgba(0, 230, 118, 0.5)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-neon-green)";
-            e.currentTarget.style.boxShadow = "0 0 12px rgba(0, 230, 118, 0.3)";
-          }}
-        >
-          Ver ofertas
         </Link>
       </div>
     </nav>
