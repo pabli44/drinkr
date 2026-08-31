@@ -4,7 +4,7 @@
  * THESIS: drinkr es un marketplace de ahorro en bebidas. El usuario siente que encontró algo bueno, que el precio vale la pena.
  * OWN-WORLD: Base #0D0D0D + Neon green #00E676 + Neon orange #FF6D00. Syne display + DM Sans UI. Deal hunter aesthetic.
  * STORY: El usuario descubre que drinkr tiene las mismas bebidas más barato. Navega, encuentra lo que quiere, pide por WhatsApp.
- * FIRST VIEWPORT: Dark hero, headline "Ahorrá en tus bebidas favoritas", savings ticker, category pills.
+ * FIRST VIEWPORT: Dark hero, headline "Ahorra en tus bebidas favoritas", savings ticker, category pills.
  * FORM: Neon Discount / Deal Hunter — energia de cazador de ofertas
  * FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
  */
@@ -137,7 +137,7 @@ function HeroSection() {
             marginBottom: "1.5rem",
           }}
         >
-          Ahorrá en{" "}
+          Ahorra en{" "}
           <span
             style={{
               color: "var(--color-neon-green)",
@@ -557,7 +557,7 @@ function Footer() {
               marginTop: "0.25rem",
             }}
           >
-            Ahorrá en tus bebidas favoritas.
+            Ahorra en tus bebidas favoritas.
           </p>
         </div>
         <div style={{ display: "flex", gap: "1.5rem" }}>

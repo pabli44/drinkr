@@ -22,7 +22,7 @@ drinkr es un marketplace de reventa de bebidas donde el admin ofrece productos a
 
 ## Positioning
 
-"Ahorrá en tus bebidas favoritas." No sos la tienda, sos el que encontró la oferta. Marcas que la gente ya conoce, precios que no están en otro lado.
+"Ahorra en tus bebidas favoritas." No sos la tienda, sos el que encontró la oferta. Marcas que la gente ya conoce, precios que no están en otro lado.
 
 ## Operating Context
 

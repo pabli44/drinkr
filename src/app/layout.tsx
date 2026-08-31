@@ -18,9 +18,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "drinkr — Ahorrá en tus bebidas favoritas",
+  title: "drinkr — Ahorra en tus bebidas favoritas",
   description:
-    "Encontrá las mejores ofertas en bebidas. Cerveza, gaseosas y más. Precios de promoción que no vas a encontrar en otro lado.",
+    "Encuentra las mejores ofertas en bebidas. Cerveza, gaseosas y más. Precios de promoción que no vas a encontrar en otro lado.",
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>",
   },
