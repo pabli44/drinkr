@@ -1,27 +1,40 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { signToken, verifyPassword } from "@/lib/auth";
+import { loginSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const parsed = loginSchema.safeParse(body);
 
-    const adminEmail = process.env.ADMIN_EMAIL ?? "admin@drinkr.co";
-    const adminPassword = process.env.ADMIN_PASSWORD ?? "drinkr2025";
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Correo o contraseña inválidos" },
+        { status: 400 }
+      );
+    }
 
-    if (email !== adminEmail || password !== adminPassword) {
+    const { email, password } = parsed.data;
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json(
         { error: "Credenciales inválidas" },
         { status: 401 }
       );
     }
 
-    // Payload simple (sin JWT real para evitar dependencia de librerías)
-    const payload = { email, role: "ADMIN" };
-    const token = Buffer.from(JSON.stringify(payload)).toString("base64");
+    const token = await signToken({ userId: user.id, role: user.role });
 
     const response = NextResponse.json({ ok: true });
     response.cookies.set("admin_token", token, {
       httpOnly: true,
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24, // 24 horas
     });
