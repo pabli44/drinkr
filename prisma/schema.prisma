@@ -8,18 +8,13 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
   passwordHash String
-  name         String
-  role         Role          @default(CLIENT)
-  phone        String?
-  address      String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  orders        Order[]
-  refreshTokens RefreshToken[]
+  name         String?
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("users")
 }
@@ -29,74 +24,44 @@ enum Role {
   CLIENT
 }
 
-model Beer {
-  id            String   @id @default(cuid())
-  name          String
-  description   String?
-  pricePerLiter Decimal  @db.Decimal(10, 2)
-  stockInLiters Decimal  @db.Decimal(10, 2)
-  imageUrl      String?
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  orderItems OrderItem[]
-
-  @@map("beers")
-}
-
-model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  status          OrderStatus @default(PENDING)
-  totalAmount     Decimal     @db.Decimal(10, 2)
-  paymentId       String?     @unique
-  notes           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  paidAt          DateTime?
-  preparedAt      DateTime?
-  deliveredAt     DateTime?
-
-  user  User        @relation(fields: [userId], references: [id])
-  items OrderItem[]
-
-  @@index([userId])
-  @@index([status])
-  @@map("orders")
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  PREPARING
-  READY
-  DELIVERED
-  CANCELLED
-}
-
-model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  beerId    String
-  quantity  Decimal @db.Decimal(10, 2)
-  unitPrice Decimal @db.Decimal(10, 2)
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  beer  Beer  @relation(fields: [beerId], references: [id])
-
-  @@map("order_items")
-}
-
-model RefreshToken {
+model Category {
   id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  expiresAt DateTime
+  name      String
+  icon      String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products Product[]
 
-  @@index([userId])
-  @@map("refresh_tokens")
+  @@map("categories")
+}
+
+model Product {
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  categoryId   String
+  presentation Presentation @default(SIXPACK)
+  regularPrice Decimal      @db.Decimal(10, 2)
+  promoPrice   Decimal      @db.Decimal(10, 2)
+  stock        Int          @default(0)
+  imageUrl     String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@map("products")
+}
+
+enum Presentation {
+  SIXPACK
+  BOTTLE
+  CAN
+  SINGLE
 }

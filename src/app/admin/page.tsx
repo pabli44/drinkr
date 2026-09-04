@@ -3,24 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Product, Category } from "@/types";
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from "@/lib/mock-data";
-
-const STORAGE_KEY = "drinkr_products";
-
-function loadProducts(): Product[] {
-  if (typeof window === "undefined") return MOCK_PRODUCTS;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  const initial = MOCK_PRODUCTS;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-  return initial;
-}
-
-function saveProducts(products: Product[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-}
+import { MOCK_CATEGORIES } from "@/lib/mock-data";
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat("es-CO", {
@@ -33,13 +16,41 @@ function formatPrice(value: number): string {
 export default function AdminPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editStock, setEditStock] = useState<number>(0);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setProducts(loadProducts());
-  }, []);
+    async function loadProducts() {
+      try {
+        const res = await fetch("/api/admin/products", {
+          credentials: "same-origin",
+        });
+
+        if (res.status === 401) {
+          router.push("/admin/login");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("No se pudieron cargar los productos");
+        }
+
+        const data = await res.json();
+        setProducts(data.products ?? []);
+        setCategories(data.categories ?? MOCK_CATEGORIES);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error de conexión");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, [router]);
 
   const startEdit = useCallback((product: Product) => {
     setEditingId(product.id);
@@ -51,32 +62,70 @@ export default function AdminPage() {
     setEditStock(0);
   }, []);
 
-  const saveEdit = useCallback(() => {
+  const saveEdit = useCallback(async () => {
     if (!editingId) return;
     setSaving(true);
 
-    const updated = products.map((p) =>
-      p.id === editingId
-        ? { ...p, stock: editStock, updatedAt: new Date() }
-        : p
-    );
+    try {
+      const res = await fetch(`/api/admin/products/${editingId}/stock`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ stock: editStock }),
+      });
 
-    saveProducts(updated);
-    setProducts(updated);
-    setEditingId(null);
-    setSaving(false);
-  }, [editingId, editStock, products]);
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Error al actualizar el stock");
+      }
+
+      const data = await res.json();
+      const updatedProduct = data.product as Product;
+
+      setProducts((prev) =>
+        prev.map((p) => (p.id === editingId ? updatedProduct : p))
+      );
+      setEditingId(null);
+      setEditStock(0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error de conexión");
+    } finally {
+      setSaving(false);
+    }
+  }, [editingId, editStock, router]);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+    });
     router.push("/admin/login");
     router.refresh();
   }
 
-  const categories = MOCK_CATEGORIES;
-
   function getCategoryName(id: string) {
     return categories.find((c) => c.id === id)?.name ?? id;
+  }
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: "calc(100vh - 4rem)",
+          backgroundColor: "var(--color-base)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div className="spinner-neon" />
+      </div>
+    );
   }
 
   return (
@@ -137,6 +186,19 @@ export default function AdminPage() {
             Salir
           </button>
         </div>
+
+        {error && (
+          <p
+            style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.875rem",
+              color: "#FF5252",
+              marginBottom: "1.5rem",
+            }}
+          >
+            {error}
+          </p>
+        )}
 
         {/* Stats */}
         <div
@@ -366,7 +428,13 @@ export default function AdminPage() {
                     }}
                   >
                     {editingId === product.id ? (
-                      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.5rem",
+                          justifyContent: "flex-end",
+                        }}
+                      >
                         <button
                           onClick={saveEdit}
                           disabled={saving}

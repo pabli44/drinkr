@@ -12,7 +12,7 @@ export const getCurrentUser = cache(async () => {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { id: true, email: true, name: true, role: true, phone: true, address: true },
+    select: { id: true, email: true, name: true, role: true },
   });
 
   return user;
