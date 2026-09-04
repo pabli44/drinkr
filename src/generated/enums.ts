@@ -17,13 +17,11 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
-export const OrderStatus = {
-  PENDING: 'PENDING',
-  PAID: 'PAID',
-  PREPARING: 'PREPARING',
-  READY: 'READY',
-  DELIVERED: 'DELIVERED',
-  CANCELLED: 'CANCELLED'
+export const Presentation = {
+  SIXPACK: 'SIXPACK',
+  BOTTLE: 'BOTTLE',
+  CAN: 'CAN',
+  SINGLE: 'SINGLE'
 } as const
 
-export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+export type Presentation = (typeof Presentation)[keyof typeof Presentation]

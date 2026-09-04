@@ -52,10 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Beer: 'Beer',
-  Order: 'Order',
-  OrderItem: 'OrderItem',
-  RefreshToken: 'RefreshToken'
+  Category: 'Category',
+  Product: 'Product'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,8 +78,6 @@ export const UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   name: 'name',
   role: 'role',
-  phone: 'phone',
-  address: 'address',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -89,58 +85,35 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const BeerScalarFieldEnum = {
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  icon: 'icon',
+  order: 'order',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
+
+
+export const ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  pricePerLiter: 'pricePerLiter',
-  stockInLiters: 'stockInLiters',
+  categoryId: 'categoryId',
+  presentation: 'presentation',
+  regularPrice: 'regularPrice',
+  promoPrice: 'promoPrice',
+  stock: 'stock',
   imageUrl: 'imageUrl',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type BeerScalarFieldEnum = (typeof BeerScalarFieldEnum)[keyof typeof BeerScalarFieldEnum]
-
-
-export const OrderScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  status: 'status',
-  totalAmount: 'totalAmount',
-  paymentId: 'paymentId',
-  notes: 'notes',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  paidAt: 'paidAt',
-  preparedAt: 'preparedAt',
-  deliveredAt: 'deliveredAt'
-} as const
-
-export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
-
-
-export const OrderItemScalarFieldEnum = {
-  id: 'id',
-  orderId: 'orderId',
-  beerId: 'beerId',
-  quantity: 'quantity',
-  unitPrice: 'unitPrice'
-} as const
-
-export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
-
-
-export const RefreshTokenScalarFieldEnum = {
-  id: 'id',
-  token: 'token',
-  userId: 'userId',
-  expiresAt: 'expiresAt',
-  createdAt: 'createdAt'
-} as const
-
-export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
 export const SortOrder = {
