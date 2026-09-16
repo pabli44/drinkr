@@ -1,10 +1,25 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product, Category } from "@/types";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from "@/lib/mock-data";
+
+interface ActiveOrderItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface ActiveOrder {
+  id: string;
+  token: string;
+  status: "PENDING_WHATSAPP";
+  expiresAt: string;
+  items: ActiveOrderItem[];
+}
 
 function IconWhatsApp() {
   return (
@@ -23,32 +38,6 @@ function formatPrice(value: number): string {
   }).format(value);
 }
 
-function buildWhatsAppMessage(
-  cart: Map<string, { product: Product; quantity: number }>,
-  adminPhone: string
-): string {
-  const lines = ["¡Hola! Quiero hacer un pedido en drinkr:"] as string[];
-  let total = 0;
-
-  cart.forEach(({ product, quantity }) => {
-    const subtotal = Number(product.promoPrice) * quantity;
-    total += subtotal;
-    lines.push(
-      `• ${product.name} x${quantity} — ${formatPrice(
-        Number(product.promoPrice)
-      )} c/u = ${formatPrice(subtotal)}`
-    );
-  });
-
-  lines.push("");
-  lines.push(`Total: ${formatPrice(total)}`);
-  lines.push("");
-  lines.push("Quedo atento a la confirmación. ¡Gracias!");
-
-  const text = encodeURIComponent(lines.join("\n"));
-  return `https://wa.me/${adminPhone.replace(/\D/g, "")}?text=${text}`;
-}
-
 function MenuContent() {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
@@ -60,14 +49,33 @@ function MenuContent() {
   const [cart, setCart] = useState<
     Map<string, { product: Product; quantity: number }>
   >(new Map());
+  const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
+  const [reserving, setReserving] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [remainingMinutes, setRemainingMinutes] = useState<number>(0);
   const adminPhone = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP ?? "573001234567";
+
+  const restoreCartFromOrder = useCallback(
+    (order: ActiveOrder, availableProducts: Product[]) => {
+      const restored = new Map<string, { product: Product; quantity: number }>();
+      for (const item of order.items) {
+        const product = availableProducts.find((p) => p.id === item.productId);
+        if (product) {
+          restored.set(item.productId, { product, quantity: item.quantity });
+        }
+      }
+      setCart(restored);
+    },
+    []
+  );
 
   useEffect(() => {
     async function loadCatalog() {
       try {
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [categoriesRes, productsRes, activeRes] = await Promise.all([
           fetch("/api/categories", { credentials: "same-origin" }),
           fetch("/api/products", { credentials: "same-origin" }),
+          fetch("/api/orders/active", { credentials: "same-origin" }),
         ]);
 
         if (categoriesRes.ok) {
@@ -80,13 +88,23 @@ function MenuContent() {
           }
         }
 
+        let availableProducts: Product[] = [];
         if (productsRes.ok) {
           const productsData = await productsRes.json();
-          const fetchedProducts = (productsData.products ?? []).filter(
+          availableProducts = (productsData.products ?? []).filter(
             (p: Product) => p.isActive
           );
-          if (fetchedProducts.length > 0) {
-            setProducts(fetchedProducts);
+          if (availableProducts.length > 0) {
+            setProducts(availableProducts);
+          }
+        }
+
+        if (activeRes.ok) {
+          const activeData = await activeRes.json();
+          const order = activeData.order as ActiveOrder | null;
+          if (order) {
+            setActiveOrder(order);
+            restoreCartFromOrder(order, availableProducts);
           }
         }
       } catch {
@@ -97,7 +115,25 @@ function MenuContent() {
     }
 
     loadCatalog();
-  }, []);
+  }, [restoreCartFromOrder]);
+
+  useEffect(() => {
+    if (!activeOrder) {
+      setRemainingMinutes(0);
+      return;
+    }
+
+    function updateRemaining() {
+      const expiresAt = activeOrder?.expiresAt;
+      if (!expiresAt) return;
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      setRemainingMinutes(Math.max(0, Math.ceil(diff / 60_000)));
+    }
+
+    updateRemaining();
+    const interval = setInterval(updateRemaining, 60_000);
+    return () => clearInterval(interval);
+  }, [activeOrder]);
 
   useEffect(() => {
     if (activeCategory) return;
@@ -139,10 +175,63 @@ function MenuContent() {
     }
   }
 
-  function handleWhatsAppOrder() {
-    if (cart.size === 0) return;
-    const url = buildWhatsAppMessage(cart, adminPhone);
-    window.open(url, "_blank");
+  async function handleWhatsAppOrder() {
+    if (cart.size === 0 || activeOrder) return;
+    setReserving(true);
+    setOrderError(null);
+
+    try {
+      const items = Array.from(cart.values()).map(({ product, quantity }) => ({
+        productId: product.id,
+        quantity,
+      }));
+
+      const res = await fetch("/api/orders/whatsapp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ items }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          data.error ??
+            (res.status === 409
+              ? "No hay stock suficiente para completar el pedido"
+              : "Error al crear la reserva")
+        );
+      }
+
+      const data = await res.json();
+      setActiveOrder(data.order as ActiveOrder);
+      window.open(data.whatsappUrl as string, "_blank");
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "Error de conexión");
+    } finally {
+      setReserving(false);
+    }
+  }
+
+  async function handleCancelOrder() {
+    if (!activeOrder) return;
+
+    try {
+      const res = await fetch(`/api/orders/${activeOrder.token}/cancel`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Error al cancelar la reserva");
+      }
+
+      setActiveOrder(null);
+      setCart(new Map());
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "Error de conexión");
+    }
   }
 
   if (loading) {
@@ -199,6 +288,80 @@ function MenuContent() {
             Precios de promoción. Stock limitado.
           </p>
         </div>
+
+        {orderError && (
+          <div
+            style={{
+              marginBottom: "1rem",
+              padding: "0.875rem 1rem",
+              backgroundColor: "rgba(255, 82, 82, 0.08)",
+              border: "1px solid rgba(255, 82, 82, 0.25)",
+              borderRadius: "var(--radius-md)",
+              color: "#FF5252",
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.875rem",
+            }}
+          >
+            {orderError}
+          </div>
+        )}
+
+        {activeOrder && (
+          <div
+            style={{
+              marginBottom: "1.5rem",
+              padding: "1rem 1.25rem",
+              backgroundColor: "rgba(0, 230, 118, 0.06)",
+              border: "1px solid rgba(0, 230, 118, 0.2)",
+              borderRadius: "var(--radius-lg)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  color: "var(--color-neon-green)",
+                }}
+              >
+                Reserva activa
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  color: "var(--color-text-muted)",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Tu carrito está reservado. Quedan{" "}
+                <strong>{remainingMinutes} min</strong> para completar el pago.
+              </p>
+            </div>
+            <button
+              onClick={handleCancelOrder}
+              style={{
+                backgroundColor: "transparent",
+                color: "var(--color-text-dim)",
+                border: "1px solid var(--color-border)",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                padding: "0.5rem 1rem",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              Cancelar reserva
+            </button>
+          </div>
+        )}
 
         {/* Category tabs */}
         <div
@@ -385,11 +548,21 @@ function MenuContent() {
             </div>
             <button
               onClick={handleWhatsAppOrder}
+              disabled={reserving || activeOrder !== null}
               className="btn-neon-green"
-              style={{ flexShrink: 0 }}
+              style={{
+                flexShrink: 0,
+                opacity: reserving || activeOrder !== null ? 0.6 : 1,
+                cursor:
+                  reserving || activeOrder !== null ? "not-allowed" : "pointer",
+              }}
             >
               <IconWhatsApp />
-              Pedir por WhatsApp
+              {reserving
+                ? "Reservando..."
+                : activeOrder
+                ? "Reserva activa"
+                : "Pedir por WhatsApp"}
             </button>
           </div>
         </div>
