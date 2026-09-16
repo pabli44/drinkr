@@ -52,7 +52,8 @@ model Product {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  category Category @relation(fields: [categoryId], references: [id])
+  category    Category     @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
 
   @@index([categoryId])
   @@index([isActive])
@@ -64,4 +65,42 @@ enum Presentation {
   BOTTLE
   CAN
   SINGLE
+}
+
+enum OrderStatus {
+  PENDING_WHATSAPP
+  EXPIRED
+  CANCELLED
+  COMPLETED
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  status    OrderStatus @default(PENDING_WHATSAPP)
+  expiresAt DateTime
+  token     String      @unique
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  items OrderItem[]
+
+  @@index([status, expiresAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                 String  @id @default(cuid())
+  orderId            String
+  productId          String
+  quantity           Int
+  priceAtReservation Decimal @db.Decimal(10, 2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
 }
