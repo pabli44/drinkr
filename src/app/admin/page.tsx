@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Product, Category } from "@/types";
+import type { Product as BaseProduct, Category } from "@/types";
 import { MOCK_CATEGORIES } from "@/lib/mock-data";
+
+type AdminProduct = BaseProduct & { reserved?: number };
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat("es-CO", {
@@ -15,7 +18,7 @@ function formatPrice(value: number): string {
 
 export default function AdminPage() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<AdminProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editStock, setEditStock] = useState<number>(0);
@@ -52,7 +55,7 @@ export default function AdminPage() {
     loadProducts();
   }, [router]);
 
-  const startEdit = useCallback((product: Product) => {
+  const startEdit = useCallback((product: AdminProduct) => {
     setEditingId(product.id);
     setEditStock(product.stock);
   }, []);
@@ -85,7 +88,7 @@ export default function AdminPage() {
       }
 
       const data = await res.json();
-      const updatedProduct = data.product as Product;
+      const updatedProduct = data.product as AdminProduct;
 
       setProducts((prev) =>
         prev.map((p) => (p.id === editingId ? updatedProduct : p))
@@ -294,7 +297,13 @@ export default function AdminPage() {
                   borderBottom: "1px solid var(--color-border)",
                 }}
               >
-                {["Producto", "Categoría", "Precio promo", "Stock"].map((h) => (
+                {[
+                  "Producto",
+                  "Categoría",
+                  "Precio promo",
+                  "Stock",
+                  "Reservado",
+                ].map((h) => (
                   <th
                     key={h}
                     style={{
@@ -421,6 +430,21 @@ export default function AdminPage() {
                       </span>
                     )}
                   </td>
+                  <td style={{ padding: "0.875rem 1.5rem" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: "0.9375rem",
+                        fontWeight: 700,
+                        color:
+                          (product.reserved ?? 0) === 0
+                            ? "var(--color-text-dim)"
+                            : "#FFAB40",
+                      }}
+                    >
+                      {product.reserved ?? 0}
+                    </span>
+                  </td>
                   <td
                     style={{
                       padding: "0.875rem 1.5rem",
@@ -496,7 +520,7 @@ export default function AdminPage() {
 
         {/* Back to store */}
         <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
-          <a
+          <Link
             href="/"
             style={{
               fontFamily: "var(--font-sans)",
@@ -506,7 +530,7 @@ export default function AdminPage() {
             }}
           >
             ← Volver al inicio
-          </a>
+          </Link>
         </div>
       </div>
     </div>
