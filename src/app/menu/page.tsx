@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product, Category } from "@/types";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -43,17 +43,16 @@ function MenuContent() {
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    searchParams.get("cat") ?? null
-  );
   const [cart, setCart] = useState<
     Map<string, { product: Product; quantity: number }>
   >(new Map());
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
   const [reserving, setReserving] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-  const [remainingMinutes, setRemainingMinutes] = useState<number>(0);
-  const adminPhone = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP ?? "573001234567";
+  const [now, setNow] = useState<number>(() => Date.now());
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    searchParams.get("cat") ?? null
+  );
 
   const restoreCartFromOrder = useCallback(
     (order: ActiveOrder, availableProducts: Product[]) => {
@@ -118,28 +117,21 @@ function MenuContent() {
   }, [restoreCartFromOrder]);
 
   useEffect(() => {
-    if (!activeOrder) {
-      setRemainingMinutes(0);
-      return;
-    }
-
-    function updateRemaining() {
-      const expiresAt = activeOrder?.expiresAt;
-      if (!expiresAt) return;
-      const diff = new Date(expiresAt).getTime() - Date.now();
-      setRemainingMinutes(Math.max(0, Math.ceil(diff / 60_000)));
-    }
-
-    updateRemaining();
-    const interval = setInterval(updateRemaining, 60_000);
+    if (!activeOrder) return;
+    const interval = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(interval);
   }, [activeOrder]);
 
-  useEffect(() => {
-    if (activeCategory) return;
-    const first = categories.find((c) => c.isActive);
-    if (first) setActiveCategory(first.id);
-  }, [categories, activeCategory]);
+  const activeCategory = useMemo(() => {
+    if (selectedCategoryId) return selectedCategoryId;
+    return categories.find((c) => c.isActive)?.id ?? null;
+  }, [selectedCategoryId, categories]);
+
+  const remainingMinutes = useMemo(() => {
+    if (!activeOrder) return 0;
+    const diff = new Date(activeOrder.expiresAt).getTime() - now;
+    return Math.max(0, Math.ceil(diff / 60_000));
+  }, [activeOrder, now]);
 
   const filteredProducts = products.filter(
     (p) => p.isActive && p.categoryId === activeCategory
@@ -375,7 +367,7 @@ function MenuContent() {
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
+              onClick={() => setSelectedCategoryId(cat.id)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
