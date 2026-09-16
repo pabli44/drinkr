@@ -35,3 +35,12 @@ export const createBeerSchema = z.object({
 export const updateOrderStatusSchema = z.object({
   status: z.enum(["PENDING", "PAID", "PREPARING", "READY", "DELIVERED", "CANCELLED"]),
 });
+
+export const whatsappOrderSchema = z.object({
+  items: z.array(
+    z.object({
+      productId: z.string().min(1, "El producto es requerido"),
+      quantity: z.number().int().positive("La cantidad debe ser mayor a 0"),
+    })
+  ).min(1, "Debe agregar al menos un item"),
+});

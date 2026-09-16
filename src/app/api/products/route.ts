@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { expirePendingOrders } from "@/lib/order";
 import type { Product as ProductType, Category as CategoryType } from "@/generated/client";
 
 type ProductWithCategory = ProductType & { category?: CategoryType | null };
 
 export async function GET(request: Request) {
+  await expirePendingOrders();
+
   const { searchParams } = new URL(request.url);
   const categoryId = searchParams.get("categoryId");
 

@@ -25,3 +25,13 @@ export const Presentation = {
 } as const
 
 export type Presentation = (typeof Presentation)[keyof typeof Presentation]
+
+
+export const OrderStatus = {
+  PENDING_WHATSAPP: 'PENDING_WHATSAPP',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
