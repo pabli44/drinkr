@@ -8,6 +8,23 @@ import { MOCK_CATEGORIES } from "@/lib/mock-data";
 
 type AdminProduct = BaseProduct & { reserved?: number };
 
+interface PendingOrderItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface PendingOrder {
+  id: string;
+  token: string;
+  status: string;
+  expiresAt: string;
+  createdAt: string;
+  items: PendingOrderItem[];
+  total: number;
+}
+
 function formatPrice(value: number): string {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -25,6 +42,12 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingOrders, setPendingOrders] = useState<PendingOrder[]>([]);
+  const [pendingLoading, setPendingLoading] = useState(true);
+  const [pendingError, setPendingError] = useState<string | null>(null);
+  const [processingOrderId, setProcessingOrderId] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [now, setNow] = useState<number>(() => Date.now());
 
   useEffect(() => {
     async function loadProducts() {
@@ -54,6 +77,44 @@ export default function AdminPage() {
 
     loadProducts();
   }, [router]);
+
+  useEffect(() => {
+    async function loadPendingOrders() {
+      setPendingLoading(true);
+      setPendingError(null);
+
+      try {
+        const res = await fetch("/api/admin/orders", {
+          credentials: "same-origin",
+        });
+
+        if (res.status === 401) {
+          router.push("/admin/login");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("No se pudieron cargar los pedidos pendientes");
+        }
+
+        const data = await res.json();
+        setPendingOrders(data.orders ?? []);
+      } catch (err) {
+        setPendingError(
+          err instanceof Error ? err.message : "Error de conexión"
+        );
+      } finally {
+        setPendingLoading(false);
+      }
+    }
+
+    loadPendingOrders();
+  }, [router, refreshKey]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   const startEdit = useCallback((product: AdminProduct) => {
     setEditingId(product.id);
@@ -111,8 +172,67 @@ export default function AdminPage() {
     router.refresh();
   }
 
+  async function handleConfirmOrder(order: PendingOrder) {
+    setProcessingOrderId(order.id);
+
+    try {
+      const res = await fetch(`/api/orders/${order.token}/complete`, {
+        method: "PATCH",
+        credentials: "same-origin",
+      });
+
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Error al confirmar el pedido");
+      }
+
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      setPendingError(err instanceof Error ? err.message : "Error de conexión");
+    } finally {
+      setProcessingOrderId(null);
+    }
+  }
+
+  async function handleCancelOrder(order: PendingOrder) {
+    setProcessingOrderId(order.id);
+
+    try {
+      const res = await fetch(`/api/orders/${order.token}/cancel`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Error al cancelar el pedido");
+      }
+
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      setPendingError(err instanceof Error ? err.message : "Error de conexión");
+    } finally {
+      setProcessingOrderId(null);
+    }
+  }
+
   function getCategoryName(id: string) {
     return categories.find((c) => c.id === id)?.name ?? id;
+  }
+
+  function getRemainingMinutes(expiresAt: string): number {
+    const diff = new Date(expiresAt).getTime() - now;
+    return Math.max(0, Math.ceil(diff / 60_000));
   }
 
   if (loading) {
@@ -516,6 +636,202 @@ export default function AdminPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pending orders */}
+        <div
+          style={{
+            marginTop: "2.5rem",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              padding: "1rem 1.5rem",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1rem",
+                fontWeight: 700,
+                color: "var(--color-text)",
+              }}
+            >
+              Pedidos pendientes
+            </h2>
+          </div>
+
+          {pendingLoading ? (
+            <div
+              style={{
+                padding: "2rem",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <div className="spinner-neon" />
+            </div>
+          ) : pendingError ? (
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.875rem",
+                color: "#FF5252",
+                padding: "1rem 1.5rem",
+              }}
+            >
+              {pendingError}
+            </p>
+          ) : pendingOrders.length === 0 ? (
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.875rem",
+                color: "var(--color-text-dim)",
+                padding: "1.5rem",
+              }}
+            >
+              No hay pedidos pendientes.
+            </p>
+          ) : (
+            <div style={{ padding: "1rem 1.5rem" }}>
+              {pendingOrders.map((order, index) => (
+                <div
+                  key={order.id}
+                  style={{
+                    padding: "1rem 0",
+                    borderBottom:
+                      index < pendingOrders.length - 1
+                        ? "1px solid var(--color-border)"
+                        : "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: "1rem",
+                      flexWrap: "wrap",
+                      marginBottom: "0.75rem",
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          fontSize: "0.9375rem",
+                          fontWeight: 800,
+                          color: "var(--color-text)",
+                        }}
+                      >
+                        Pedido{" "}
+                        <span
+                          style={{ color: "var(--color-text-dim)" }}
+                        >
+                          #{order.token.slice(0, 8)}
+                        </span>
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.75rem",
+                          color: "var(--color-text-dim)",
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        Quedan{" "}
+                        <strong style={{ color: "var(--color-neon-orange)" }}>
+                          {getRemainingMinutes(order.expiresAt)} min
+                        </strong>{" "}
+                        · Total:{" "}
+                        <strong style={{ color: "var(--color-neon-green)" }}>
+                          {formatPrice(order.total)}
+                        </strong>
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "0.5rem",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <button
+                        onClick={() => handleConfirmOrder(order)}
+                        disabled={processingOrderId === order.id}
+                        className="btn-neon-green"
+                        style={{
+                          fontSize: "0.75rem",
+                          padding: "0.4rem 0.75rem",
+                        }}
+                      >
+                        {processingOrderId === order.id
+                          ? "Procesando..."
+                          : "Confirmar venta"}
+                      </button>
+                      <button
+                        onClick={() => handleCancelOrder(order)}
+                        disabled={processingOrderId === order.id}
+                        style={{
+                          backgroundColor: "transparent",
+                          color: "var(--color-text-dim)",
+                          border: "1px solid var(--color-border)",
+                          fontSize: "0.75rem",
+                          fontWeight: 600,
+                          padding: "0.4rem 0.75rem",
+                          borderRadius: "var(--radius-md)",
+                          cursor: "pointer",
+                          fontFamily: "var(--font-sans)",
+                        }}
+                      >
+                        Cancelar pedido
+                      </button>
+                    </div>
+                  </div>
+
+                  <ul
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      listStyle: "none",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.375rem",
+                    }}
+                  >
+                    {order.items.map((item) => (
+                      <li
+                        key={item.productId}
+                        style={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "0.8125rem",
+                          color: "var(--color-text-muted)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span>
+                          {item.name}{" "}
+                          <span style={{ color: "var(--color-text-dim)" }}>
+                            x{item.quantity}
+                          </span>
+                        </span>
+                        <span>
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Back to store */}

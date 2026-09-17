@@ -154,7 +154,7 @@ export async function getActiveOrderByToken(token: string): Promise<OrderWithIte
     include: { items: { include: { product: true } } },
   });
 
-  if (!order || order.status !== "PENDING_WHATSAPP") {
+  if (!order || (order.status !== "PENDING_WHATSAPP" && order.status !== "COMPLETED")) {
     return null;
   }
 
