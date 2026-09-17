@@ -21,6 +21,52 @@ interface ActiveOrder {
   items: ActiveOrderItem[];
 }
 
+interface StoredReservation {
+  token: string;
+  expiresAt: string;
+  items: ActiveOrderItem[];
+}
+
+const RESERVATION_STORAGE_KEY = "drinkr_active_reservation";
+
+function readStoredReservation(): StoredReservation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(RESERVATION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredReservation;
+    if (!parsed.token || !Array.isArray(parsed.items)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredReservation(order: ActiveOrder): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(
+      RESERVATION_STORAGE_KEY,
+      JSON.stringify({
+        token: order.token,
+        expiresAt: order.expiresAt,
+        items: order.items,
+      })
+    );
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function clearStoredReservation(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(RESERVATION_STORAGE_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
 function IconWhatsApp() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -49,6 +95,8 @@ function MenuContent() {
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
   const [reserving, setReserving] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [expiredReservation, setExpiredReservation] =
+    useState<StoredReservation | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     searchParams.get("cat") ?? null
@@ -98,12 +146,19 @@ function MenuContent() {
           }
         }
 
+        const storedReservation = readStoredReservation();
+
         if (activeRes.ok) {
           const activeData = await activeRes.json();
           const order = activeData.order as ActiveOrder | null;
           if (order) {
             setActiveOrder(order);
+            setExpiredReservation(null);
             restoreCartFromOrder(order, availableProducts);
+            writeStoredReservation(order);
+          } else if (storedReservation) {
+            setExpiredReservation(storedReservation);
+            clearStoredReservation();
           }
         }
       } catch {
@@ -118,7 +173,22 @@ function MenuContent() {
 
   useEffect(() => {
     if (!activeOrder) return;
-    const interval = setInterval(() => setNow(Date.now()), 60_000);
+
+    const tick = () => {
+      const current = Date.now();
+      setNow(current);
+
+      const expiry = new Date(activeOrder.expiresAt).getTime();
+      if (current >= expiry) {
+        const stored = readStoredReservation();
+        setActiveOrder(null);
+        clearStoredReservation();
+        if (stored) setExpiredReservation(stored);
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 60_000);
     return () => clearInterval(interval);
   }, [activeOrder]);
 
@@ -196,7 +266,9 @@ function MenuContent() {
       }
 
       const data = await res.json();
-      setActiveOrder(data.order as ActiveOrder);
+      const createdOrder = data.order as ActiveOrder;
+      setActiveOrder(createdOrder);
+      writeStoredReservation(createdOrder);
       window.open(data.whatsappUrl as string, "_blank");
     } catch (err) {
       setOrderError(err instanceof Error ? err.message : "Error de conexión");
@@ -220,10 +292,31 @@ function MenuContent() {
       }
 
       setActiveOrder(null);
+      setExpiredReservation(null);
       setCart(new Map());
+      clearStoredReservation();
     } catch (err) {
       setOrderError(err instanceof Error ? err.message : "Error de conexión");
     }
+  }
+
+  function handleRebuildOrder() {
+    if (!expiredReservation) return;
+
+    const restored = new Map<string, { product: Product; quantity: number }>();
+    for (const item of expiredReservation.items) {
+      const product = products.find((p) => p.id === item.productId);
+      if (product?.isActive) {
+        const availableStock = Math.max(product.stock, 0);
+        const quantity = Math.min(item.quantity, availableStock);
+        if (quantity > 0) {
+          restored.set(item.productId, { product, quantity });
+        }
+      }
+    }
+
+    setCart(restored);
+    setExpiredReservation(null);
   }
 
   if (loading) {
@@ -332,8 +425,13 @@ function MenuContent() {
                   marginTop: "0.25rem",
                 }}
               >
-                Tu carrito está reservado. Quedan{" "}
-                <strong>{remainingMinutes} min</strong> para completar el pago.
+                Tu pedido está reservado. Quedan{" "}
+                <strong>
+                  {remainingMinutes > 0 ? `${remainingMinutes} min` : "menos de 1 min"}
+                </strong>{" "}
+                para enviarnos el pedido por WhatsApp y completar el pago. Si
+                cierras esta página, puedes volver desde este dispositivo
+                mientras la reserva esté activa.
               </p>
             </div>
             <button
@@ -351,6 +449,63 @@ function MenuContent() {
               }}
             >
               Cancelar reserva
+            </button>
+          </div>
+        )}
+
+        {expiredReservation && !activeOrder && (
+          <div
+            style={{
+              marginBottom: "1.5rem",
+              padding: "1rem 1.25rem",
+              backgroundColor: "rgba(255, 171, 64, 0.06)",
+              border: "1px solid rgba(255, 171, 64, 0.2)",
+              borderRadius: "var(--radius-lg)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  color: "#FFAB40",
+                }}
+              >
+                Reserva vencida
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  color: "var(--color-text-muted)",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Tu reserva expiró y liberamos el stock. Si quieres, puedes
+                armar tu pedido de nuevo.
+              </p>
+            </div>
+            <button
+              onClick={handleRebuildOrder}
+              style={{
+                backgroundColor: "transparent",
+                color: "#FFAB40",
+                border: "1px solid rgba(255, 171, 64, 0.4)",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                padding: "0.5rem 1rem",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              Armar pedido de nuevo
             </button>
           </div>
         )}
@@ -440,7 +595,7 @@ function MenuContent() {
                 marginTop: "0.375rem",
               }}
             >
-              Volvé pronto, siempre estamos sumando ofertas.
+              Vuelve pronto, siempre estamos sumando ofertas.
             </p>
           </div>
         ) : (
