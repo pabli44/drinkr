@@ -16,7 +16,7 @@ interface ActiveOrderItem {
 interface ActiveOrder {
   id: string;
   token: string;
-  status: "PENDING_WHATSAPP";
+  status: "PENDING_WHATSAPP" | "COMPLETED";
   expiresAt: string;
   items: ActiveOrderItem[];
 }
@@ -93,6 +93,7 @@ function MenuContent() {
     Map<string, { product: Product; quantity: number }>
   >(new Map());
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
+  const [completedOrder, setCompletedOrder] = useState<ActiveOrder | null>(null);
   const [reserving, setReserving] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [expiredReservation, setExpiredReservation] =
@@ -152,10 +153,16 @@ function MenuContent() {
           const activeData = await activeRes.json();
           const order = activeData.order as ActiveOrder | null;
           if (order) {
-            setActiveOrder(order);
-            setExpiredReservation(null);
-            restoreCartFromOrder(order, availableProducts);
-            writeStoredReservation(order);
+            if (order.status === "COMPLETED") {
+              setCompletedOrder(order);
+              setActiveOrder(null);
+              clearStoredReservation();
+            } else {
+              setActiveOrder(order);
+              setExpiredReservation(null);
+              restoreCartFromOrder(order, availableProducts);
+              writeStoredReservation(order);
+            }
           } else if (storedReservation) {
             setExpiredReservation(storedReservation);
             clearStoredReservation();
@@ -319,6 +326,12 @@ function MenuContent() {
     setExpiredReservation(null);
   }
 
+  function handleDismissCompletedOrder() {
+    setCompletedOrder(null);
+    clearStoredReservation();
+    document.cookie = "order_token=; path=/; max-age=0; sameSite=lax";
+  }
+
   if (loading) {
     return (
       <div
@@ -449,6 +462,57 @@ function MenuContent() {
               }}
             >
               Cancelar reserva
+            </button>
+          </div>
+        )}
+
+        {completedOrder && !activeOrder && (
+          <div
+            style={{
+              marginBottom: "1.5rem",
+              padding: "1rem 1.25rem",
+              backgroundColor: "rgba(0, 230, 118, 0.08)",
+              border: "1px solid rgba(0, 230, 118, 0.25)",
+              borderRadius: "var(--radius-lg)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  color: "var(--color-neon-green)",
+                }}
+              >
+                Pedido confirmado
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  color: "var(--color-text-muted)",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Tu pedido fue confirmado. Ya podés hacer otro pedido.
+              </p>
+            </div>
+            <button
+              onClick={handleDismissCompletedOrder}
+              className="btn-neon-green"
+              style={{
+                fontSize: "0.8125rem",
+                padding: "0.5rem 1rem",
+                flexShrink: 0,
+              }}
+            >
+              Hacer otro pedido
             </button>
           </div>
         )}
