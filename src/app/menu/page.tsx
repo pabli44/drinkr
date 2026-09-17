@@ -1,10 +1,71 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product, Category } from "@/types";
 import { ProductCard } from "@/components/product/ProductCard";
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from "@/lib/mock-data";
+
+interface ActiveOrderItem {
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface ActiveOrder {
+  id: string;
+  token: string;
+  status: "PENDING_WHATSAPP";
+  expiresAt: string;
+  items: ActiveOrderItem[];
+}
+
+interface StoredReservation {
+  token: string;
+  expiresAt: string;
+  items: ActiveOrderItem[];
+}
+
+const RESERVATION_STORAGE_KEY = "drinkr_active_reservation";
+
+function readStoredReservation(): StoredReservation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(RESERVATION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredReservation;
+    if (!parsed.token || !Array.isArray(parsed.items)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredReservation(order: ActiveOrder): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(
+      RESERVATION_STORAGE_KEY,
+      JSON.stringify({
+        token: order.token,
+        expiresAt: order.expiresAt,
+        items: order.items,
+      })
+    );
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function clearStoredReservation(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(RESERVATION_STORAGE_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
 
 function IconWhatsApp() {
   return (
@@ -23,51 +84,45 @@ function formatPrice(value: number): string {
   }).format(value);
 }
 
-function buildWhatsAppMessage(
-  cart: Map<string, { product: Product; quantity: number }>,
-  adminPhone: string
-): string {
-  const lines = ["¡Hola! Quiero hacer un pedido en drinkr:"] as string[];
-  let total = 0;
-
-  cart.forEach(({ product, quantity }) => {
-    const subtotal = Number(product.promoPrice) * quantity;
-    total += subtotal;
-    lines.push(
-      `• ${product.name} x${quantity} — ${formatPrice(
-        Number(product.promoPrice)
-      )} c/u = ${formatPrice(subtotal)}`
-    );
-  });
-
-  lines.push("");
-  lines.push(`Total: ${formatPrice(total)}`);
-  lines.push("");
-  lines.push("Quedo atento a la confirmación. ¡Gracias!");
-
-  const text = encodeURIComponent(lines.join("\n"));
-  return `https://wa.me/${adminPhone.replace(/\D/g, "")}?text=${text}`;
-}
-
 function MenuContent() {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    searchParams.get("cat") ?? null
-  );
   const [cart, setCart] = useState<
     Map<string, { product: Product; quantity: number }>
   >(new Map());
-  const adminPhone = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP ?? "573001234567";
+  const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
+  const [reserving, setReserving] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [expiredReservation, setExpiredReservation] =
+    useState<StoredReservation | null>(null);
+  const [now, setNow] = useState<number>(() => Date.now());
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    searchParams.get("cat") ?? null
+  );
+
+  const restoreCartFromOrder = useCallback(
+    (order: ActiveOrder, availableProducts: Product[]) => {
+      const restored = new Map<string, { product: Product; quantity: number }>();
+      for (const item of order.items) {
+        const product = availableProducts.find((p) => p.id === item.productId);
+        if (product) {
+          restored.set(item.productId, { product, quantity: item.quantity });
+        }
+      }
+      setCart(restored);
+    },
+    []
+  );
 
   useEffect(() => {
     async function loadCatalog() {
       try {
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [categoriesRes, productsRes, activeRes] = await Promise.all([
           fetch("/api/categories", { credentials: "same-origin" }),
           fetch("/api/products", { credentials: "same-origin" }),
+          fetch("/api/orders/active", { credentials: "same-origin" }),
         ]);
 
         if (categoriesRes.ok) {
@@ -80,13 +135,30 @@ function MenuContent() {
           }
         }
 
+        let availableProducts: Product[] = [];
         if (productsRes.ok) {
           const productsData = await productsRes.json();
-          const fetchedProducts = (productsData.products ?? []).filter(
+          availableProducts = (productsData.products ?? []).filter(
             (p: Product) => p.isActive
           );
-          if (fetchedProducts.length > 0) {
-            setProducts(fetchedProducts);
+          if (availableProducts.length > 0) {
+            setProducts(availableProducts);
+          }
+        }
+
+        const storedReservation = readStoredReservation();
+
+        if (activeRes.ok) {
+          const activeData = await activeRes.json();
+          const order = activeData.order as ActiveOrder | null;
+          if (order) {
+            setActiveOrder(order);
+            setExpiredReservation(null);
+            restoreCartFromOrder(order, availableProducts);
+            writeStoredReservation(order);
+          } else if (storedReservation) {
+            setExpiredReservation(storedReservation);
+            clearStoredReservation();
           }
         }
       } catch {
@@ -97,13 +169,39 @@ function MenuContent() {
     }
 
     loadCatalog();
-  }, []);
+  }, [restoreCartFromOrder]);
 
   useEffect(() => {
-    if (activeCategory) return;
-    const first = categories.find((c) => c.isActive);
-    if (first) setActiveCategory(first.id);
-  }, [categories, activeCategory]);
+    if (!activeOrder) return;
+
+    const tick = () => {
+      const current = Date.now();
+      setNow(current);
+
+      const expiry = new Date(activeOrder.expiresAt).getTime();
+      if (current >= expiry) {
+        const stored = readStoredReservation();
+        setActiveOrder(null);
+        clearStoredReservation();
+        if (stored) setExpiredReservation(stored);
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 60_000);
+    return () => clearInterval(interval);
+  }, [activeOrder]);
+
+  const activeCategory = useMemo(() => {
+    if (selectedCategoryId) return selectedCategoryId;
+    return categories.find((c) => c.isActive)?.id ?? null;
+  }, [selectedCategoryId, categories]);
+
+  const remainingMinutes = useMemo(() => {
+    if (!activeOrder) return 0;
+    const diff = new Date(activeOrder.expiresAt).getTime() - now;
+    return Math.max(0, Math.ceil(diff / 60_000));
+  }, [activeOrder, now]);
 
   const filteredProducts = products.filter(
     (p) => p.isActive && p.categoryId === activeCategory
@@ -139,10 +237,86 @@ function MenuContent() {
     }
   }
 
-  function handleWhatsAppOrder() {
-    if (cart.size === 0) return;
-    const url = buildWhatsAppMessage(cart, adminPhone);
-    window.open(url, "_blank");
+  async function handleWhatsAppOrder() {
+    if (cart.size === 0 || activeOrder) return;
+    setReserving(true);
+    setOrderError(null);
+
+    try {
+      const items = Array.from(cart.values()).map(({ product, quantity }) => ({
+        productId: product.id,
+        quantity,
+      }));
+
+      const res = await fetch("/api/orders/whatsapp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ items }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          data.error ??
+            (res.status === 409
+              ? "No hay stock suficiente para completar el pedido"
+              : "Error al crear la reserva")
+        );
+      }
+
+      const data = await res.json();
+      const createdOrder = data.order as ActiveOrder;
+      setActiveOrder(createdOrder);
+      writeStoredReservation(createdOrder);
+      window.open(data.whatsappUrl as string, "_blank");
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "Error de conexión");
+    } finally {
+      setReserving(false);
+    }
+  }
+
+  async function handleCancelOrder() {
+    if (!activeOrder) return;
+
+    try {
+      const res = await fetch(`/api/orders/${activeOrder.token}/cancel`, {
+        method: "POST",
+        credentials: "same-origin",
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Error al cancelar la reserva");
+      }
+
+      setActiveOrder(null);
+      setExpiredReservation(null);
+      setCart(new Map());
+      clearStoredReservation();
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "Error de conexión");
+    }
+  }
+
+  function handleRebuildOrder() {
+    if (!expiredReservation) return;
+
+    const restored = new Map<string, { product: Product; quantity: number }>();
+    for (const item of expiredReservation.items) {
+      const product = products.find((p) => p.id === item.productId);
+      if (product?.isActive) {
+        const availableStock = Math.max(product.stock, 0);
+        const quantity = Math.min(item.quantity, availableStock);
+        if (quantity > 0) {
+          restored.set(item.productId, { product, quantity });
+        }
+      }
+    }
+
+    setCart(restored);
+    setExpiredReservation(null);
   }
 
   if (loading) {
@@ -200,6 +374,142 @@ function MenuContent() {
           </p>
         </div>
 
+        {orderError && (
+          <div
+            style={{
+              marginBottom: "1rem",
+              padding: "0.875rem 1rem",
+              backgroundColor: "rgba(255, 82, 82, 0.08)",
+              border: "1px solid rgba(255, 82, 82, 0.25)",
+              borderRadius: "var(--radius-md)",
+              color: "#FF5252",
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.875rem",
+            }}
+          >
+            {orderError}
+          </div>
+        )}
+
+        {activeOrder && (
+          <div
+            style={{
+              marginBottom: "1.5rem",
+              padding: "1rem 1.25rem",
+              backgroundColor: "rgba(0, 230, 118, 0.06)",
+              border: "1px solid rgba(0, 230, 118, 0.2)",
+              borderRadius: "var(--radius-lg)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  color: "var(--color-neon-green)",
+                }}
+              >
+                Reserva activa
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  color: "var(--color-text-muted)",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Tu pedido está reservado. Quedan{" "}
+                <strong>
+                  {remainingMinutes > 0 ? `${remainingMinutes} min` : "menos de 1 min"}
+                </strong>{" "}
+                para enviarnos el pedido por WhatsApp y completar el pago. Si
+                cierras esta página, puedes volver desde este dispositivo
+                mientras la reserva esté activa.
+              </p>
+            </div>
+            <button
+              onClick={handleCancelOrder}
+              style={{
+                backgroundColor: "transparent",
+                color: "var(--color-text-dim)",
+                border: "1px solid var(--color-border)",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                padding: "0.5rem 1rem",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              Cancelar reserva
+            </button>
+          </div>
+        )}
+
+        {expiredReservation && !activeOrder && (
+          <div
+            style={{
+              marginBottom: "1.5rem",
+              padding: "1rem 1.25rem",
+              backgroundColor: "rgba(255, 171, 64, 0.06)",
+              border: "1px solid rgba(255, 171, 64, 0.2)",
+              borderRadius: "var(--radius-lg)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  color: "#FFAB40",
+                }}
+              >
+                Reserva vencida
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.8125rem",
+                  color: "var(--color-text-muted)",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Tu reserva expiró y liberamos el stock. Si quieres, puedes
+                armar tu pedido de nuevo.
+              </p>
+            </div>
+            <button
+              onClick={handleRebuildOrder}
+              style={{
+                backgroundColor: "transparent",
+                color: "#FFAB40",
+                border: "1px solid rgba(255, 171, 64, 0.4)",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                padding: "0.5rem 1rem",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              Armar pedido de nuevo
+            </button>
+          </div>
+        )}
+
         {/* Category tabs */}
         <div
           style={{
@@ -212,7 +522,7 @@ function MenuContent() {
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
+              onClick={() => setSelectedCategoryId(cat.id)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -285,7 +595,7 @@ function MenuContent() {
                 marginTop: "0.375rem",
               }}
             >
-              Volvé pronto, siempre estamos sumando ofertas.
+              Vuelve pronto, siempre estamos sumando ofertas.
             </p>
           </div>
         ) : (
@@ -385,11 +695,21 @@ function MenuContent() {
             </div>
             <button
               onClick={handleWhatsAppOrder}
+              disabled={reserving || activeOrder !== null}
               className="btn-neon-green"
-              style={{ flexShrink: 0 }}
+              style={{
+                flexShrink: 0,
+                opacity: reserving || activeOrder !== null ? 0.6 : 1,
+                cursor:
+                  reserving || activeOrder !== null ? "not-allowed" : "pointer",
+              }}
             >
               <IconWhatsApp />
-              Pedir por WhatsApp
+              {reserving
+                ? "Reservando..."
+                : activeOrder
+                ? "Reserva activa"
+                : "Pedir por WhatsApp"}
             </button>
           </div>
         </div>
